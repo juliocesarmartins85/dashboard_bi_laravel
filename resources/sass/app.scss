@@ -1,3 +1,21 @@
+$primary: #044dba;
+$blue-custom: #044dba;
+$green-custom: #34af23;
+$success: #198754;
+$orange: #ff6600;
+$secondary: #6c757d;
+$danger: #dc3545;
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "danger": $danger,
+  "success": $success,
+  "blue-custom": $blue-custom,
+  "green-custom": $green-custom,
+  "orange": $orange
+);
+
 // Fonts
 @import url('https://fonts.bunny.net/css?family=Nunito');
 
@@ -6,3 +24,4 @@
 
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons.css';

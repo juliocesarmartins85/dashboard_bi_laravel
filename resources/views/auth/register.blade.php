@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -24,23 +24,17 @@
         rel="stylesheet">
 
     <!-- Vendor CSS Files -->
-    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-    <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-    <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet">
-    <link href="assets/vendor/quill/quill.bubble.css" rel="stylesheet">
-    <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
-    <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
+    <link href="admin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="admin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="admin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="admin/assets/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="admin/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+    <link href="admin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="admin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
     <!-- Template Main CSS File -->
-    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="admin/assets/css/style.css" rel="stylesheet">
 
-    <!-- =======================================================
-  * Template Name: NiceAdmin - v2.5.0
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
 </head>
 
 <body>
@@ -57,7 +51,7 @@
                             <div class="d-flex justify-content-center py-4">
                                 <a href="index.html" class="logo d-flex align-items-center w-auto">
                                     <img src="assets/img/logo.png" alt="">
-                                    <span class="d-none d-lg-block">Ono Tecnologia</span>
+                                    <span class="d-none d-lg-block">{{ config('app.name', 'Laravel') }}</span>
                                 </a>
                             </div><!-- End Logo -->
 
@@ -167,18 +161,19 @@
             class="bi bi-arrow-up-short"></i></a>
 
     <!-- Vendor JS Files -->
-    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
-    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/vendor/chart.js/chart.umd.js"></script>
-    <script src="assets/vendor/echarts/echarts.min.js"></script>
-    <script src="assets/vendor/quill/quill.min.js"></script>
-    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
-    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
-    <script src="assets/vendor/php-email-form/validate.js"></script>
+    <script src="admin/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="admin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="admin/assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="admin/assets/vendor/echarts/echarts.min.js"></script>
+    <script src="admin/assets/vendor/quill/quill.min.js"></script>
+    <script src="admin/assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="admin/assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="admin/assets/vendor/php-email-form/validate.js"></script>
 
     <!-- Template Main JS File -->
-    <script src="assets/js/main.js"></script>
+    <script src="admin/assets/js/main.js"></script>
 
 </body>
 
 </html>
+ --}}
