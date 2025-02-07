@@ -63,10 +63,6 @@ class UserController extends Controller
                     'title' => 'Email',
                     'width' => '',
                 ],
-                /* [
-                    'title' => 'Função',
-                    'width' => '',
-                ], */
                 [
                     'title' => 'Ações',
                     'width' => '160',

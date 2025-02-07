@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\WebHelper;
 use App\Models\SideBar;
 use App\Models\User;
 use Illuminate\Http\Request;

@@ -75,6 +75,3 @@
         </div>
     </div><!-- End Card with header and footer -->
 @endsection
-{{-- @foreach (App\Models\User::all() as $user)
-    <!-- html code -->
-@endforeach --}}

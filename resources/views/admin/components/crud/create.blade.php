@@ -138,17 +138,6 @@
                     @endswitch
                 @endforeach
                 @isset($permission)
-                    {{--                     <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div class="form-group">
-                            <strong>Permission:</strong>
-                            <br />
-                            @foreach ($permission as $value)
-                                <label>{{ Form::checkbox('permission[]', $value->id, false, ['class' => 'name']) }}
-                                    {{ $value->name }}</label>
-                                <br />s
-                            @endforeach
-                        </div>
-                    </div> --}}
                     <div class="col-md-12">
                         <legend class="col-form-label col-sm-2 pt-0">Permissões</legend>
                         <div class="col-sm-10">
@@ -166,8 +155,12 @@
                 @isset($rolesuser)
                     <div class="col-md-12">
                         <div class="form-group">
-                            <strong>Role:</strong>
-                            {!! Form::select('roles[]', $rolesuser, [], ['class' => 'form-control', 'multiple']) !!}
+                            <strong>Nivel de Permissão:</strong>
+                            <select name="roles[]" class="form-control" multiple>
+                                @foreach ($rolesuser as $value => $label)
+                                    <option value="{{ $value }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                 @endisset

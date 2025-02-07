@@ -99,11 +99,6 @@
                                             @endif
                                         </td>
                                         <td>
-                                            {{--                                             <a class="btn btn-info" href="{{ route('users.show', $user->id) }}">Show</a>
-                                            <a class="btn btn-primary" href="{{ route('users.edit', $user->id) }}">Edit</a>
-                                            {!! Form::open(['method' => 'DELETE', 'route' => ['users.destroy', $user->id], 'style' => 'display:inline']) !!}
-                                            {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
-                                            {!! Form::close() !!} --}}
                                             <form action="{{ route("$route.destroy", $user->id) }}" method="POST">
                                                 <a class="btn btn-primary" href="{{ route("$route.show", $user->id) }}"><i
                                                         class="bi bi-info-lg fs-3"></i></a>

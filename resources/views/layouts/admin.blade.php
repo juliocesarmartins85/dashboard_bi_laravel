@@ -45,11 +45,9 @@
 
         <div class="d-flex align-items-center justify-content-between">
             <a href="{{ route('home') }}" class="logo d-flex align-items-center justify-content-center">
-                {{-- <div><img src="{{ asset('assets/admin/img/logo-ONO.svg') }}"></div> --}}
-                <div><img class="w-100" src="{{ asset('web/assets/img/site/fonelight/logo-fonelight-fibra.svg') }}">
-                </div>
-
-                {{-- <span class="d-none d-lg-block">{{ config('app.name', 'Laravel') }}</span> --}}
+                {{-- <div><img class="w-100" src="{{ asset('') }}">
+                </div> --}}
+                <span class="d-none d-lg-block">{{ config('app.name', 'Laravel') }}</span>
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
         </div><!-- End Logo -->
@@ -90,22 +88,10 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="{{-- {{ route('hotspot.index') }} --}}">
+                            <a class="dropdown-item d-flex align-items-center" href="#">
                                 <i class="bi bi-gear"></i>
                                 <span>Configuração</span>
                             </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        {{--                 <li>
-                            <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
-                                <i class="bi bi-question-circle"></i>
-                                <span>Preciso de ajuda?</span>
-                            </a>
-                        </li> --}}
-                        <li>
-                            <hr class="dropdown-divider">
                         </li>
                         <li>
                             <a class="dropdown-item d-flex align-items-center" href="{{ route('logout') }}"
@@ -175,8 +161,6 @@
                                 href="{{ url($brdc['url']) }}">{{ $brdc['title'] }}</a>
                         </li>
                     @endforeach
-                    {{-- <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                <li class="breadcrumb-item active">Dashboard</li> --}}
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -192,8 +176,6 @@
         <div class="copyright">
             &copy; Copyright <strong><span>Julio Cesar</span></strong>. Todos os direitos reservados
         </div>
-        {{-- <div class="credits">
-        </div> --}}
     </footer><!-- End Footer -->
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
@@ -227,7 +209,6 @@
         })();
     </script>
     @stack('scripts')
-    @stack('scriptsmap')
 </body>
 
 </html>

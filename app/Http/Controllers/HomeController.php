@@ -90,5 +90,23 @@ class HomeController extends Controller
     {
         //
     }
-}
 
+    /**
+     * 
+     */
+    public function dashboard()
+    {
+        $sidebaradmin = SideBar::all();
+        $breadcrumbs = [];
+        $sections = ["dashboard" => ['data' => [],]];
+        $title = 'dashboard';
+        $titlepage = ucfirst('dashboard');
+
+        return view('admin.page', compact(
+            'sidebaradmin',
+            'breadcrumbs',
+            'titlepage',
+            'sections'
+        ));
+    }
+}

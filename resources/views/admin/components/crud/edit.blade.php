@@ -74,7 +74,6 @@
                                 <div class="col-sm-3">
                                     <select class="form-select" aria-label="Default select example" name="{{ $frm['name'] }}"
                                         id="{{ $frm['name'] }}">
-                                        {{-- <option>Selecione uma opção</option> --}}
                                         @foreach ($frm['options'] as $keyoptions => $options)
                                             <option value="{{ $options['type'] }}"
                                                 {{ $datapage->{$frm['value']} == $options['type'] ? 'selected' : '' }}>
@@ -177,42 +176,12 @@
                                     </div>
                                 </div>
                             @endif
-                            {{--                             <div class="col-md-12">
-                                <label for="{{ $frm['name'] }}" class="form-label">{{ $frm['title'] }}</label>
-                                <input type="{{ $frm['type'] }}" name="{{ $frm['name'] }}" class="form-control"
-                                    value="{{ $datapage->{$frm['value']} }}" id="{{ $frm['name'] }}" required>
-                                <div class="invalid-feedback">
-                                    Digite um valor válido
-                                </div>
-                            </div> --}}
                     @endswitch
                 @endforeach
                 @isset($permission)
-                    {{--                     <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div class="form-group">
-                            <strong>Permission:</strong>
-                            <br />
-                            @foreach ($permission as $value)
-                                <label>{{ Form::checkbox('permission[]', $value->id, in_array($value->id, $rolePermissions) ? true : false, ['class' => 'name']) }}
-                                    {{ $value->name }}</label>
-                                <br />
-                            @endforeach
-                        </div>
-                    </div> --}}
                     <div class="col-md-12">
                         <legend class="col-form-label col-sm-2 pt-0">Permissões</legend>
                         <div class="col-sm-10">
-
-                            {{-- @foreach ($permission as $value) --}}
-                            {{--                                 <label>{{ Form::checkbox('permission[]', $value->id, in_array($value->id, $rolePermissions) ? true : false, ['class' => 'name']) }}
-                                    {{ $value->name }}</label>
-                                <br /> --}}
-                            {{-- <div class="form-check"> --}}
-                            {{-- <input class="form-check-input" type="checkbox" id="gridCheck1"> --}}
-                            {{-- <label>{{ Form::checkbox('permission[]', $value->id, in_array($value->id, $rolePermissions) ? true : false, ['class' => 'name']) }}
-                                        {{ $value->name }}</label>
-                                </div>
-                            @endforeach --}}
 
                             <div class="col-sm-10">
                                 @foreach ($permission as $value)
