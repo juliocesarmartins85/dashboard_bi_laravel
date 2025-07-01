@@ -17,66 +17,53 @@ class RoleController extends Controller
     protected $title;
     protected $title_can;
     protected $title_route;
+    protected $table_data;
     protected $title_permission;
     protected $title_breadcrumbs;
     protected $breadcrumbs;
-    protected $table;
-    protected $form;
+    protected $inputs_forms;
     /**
      * Display a listing of the resource.
-     *
+     *s
      * @return \Illuminate\Http\Response
      */
     function __construct()
     {
-        $this->title = 'Função';
+        $this->title = 'Acesso';
         $this->title_permission = 'funcao';
         $this->title_route = 'roles';
         $this->title_can = 'funcao';
-        $this->title_breadcrumbs = 'Função';
-        $this->middleware("permission:$this->title_permission-listar|$this->title_permission-criar|$this->title_permission-editar|$this->title_permission-deletar", ['only' => ['index', 'show']]);
-        $this->middleware("permission:$this->title_permission-criar", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$this->title_permission-editar", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$this->title_permission-deletar", ['only' => ['destroy']]);
+        $this->title_breadcrumbs = 'Acesso';
         $this->breadcrumbs = [
             [
                 'title' => 'Home',
                 'url' => '/home',
             ],
             [
-                'title' => 'Index ' . $this->title_breadcrumbs,
+                'title' => 'Todos registros ' . $this->title_breadcrumbs,
                 'url' => "/{$this->title_route}",
             ]
         ];
-        $this->table = [
-            'header' => [
-                [
-                    'title' => 'No',
-                    'width' => '',
-                ],
-                [
-                    'title' => 'Nome',
-                    'width' => '',
-                ],
-                [
-                    'title' => 'Ação',
-                    'width' => '220',
-                ],
-            ],
-            'body' => [
-                [
-                    'title' => 'name',
-                ],
-            ]
-        ];
-        $this->form = [
+        $this->middleware("permission:$this->title_permission-listar|$this->title_permission-criar|$this->title_permission-editar|$this->title_permission-deletar", ['only' => ['index', 'show']]);
+        $this->middleware("permission:$this->title_permission-criar", ['only' => ['create', 'store']]);
+        $this->middleware("permission:$this->title_permission-editar", ['only' => ['edit', 'update']]);
+        $this->middleware("permission:$this->title_permission-deletar", ['only' => ['destroy']]);
+        $this->inputs_forms = [
             [
-                'title' => 'Name',
+                'title' => 'Nome',
                 'type' => 'text',
                 'name' => 'name',
-                'placeholder' => 'Name',
+                'placeholder' => 'Nome',
                 'tag' => 'input',
                 'value' => 'name',
+            ],
+
+        ];
+        $this->table_data = [
+            [
+                'title' => 'Nome',
+                'value' => 'name',
+                'width' => '',
             ],
         ];
     }
@@ -91,14 +78,13 @@ class RoleController extends Controller
         $sidebaradmin = SideBar::all();
         $breadcrumbs = $this->breadcrumbs;
         $sections = ["crud.index" => ['data' => [],]];
+        $datapage = Role::where('name', '!=', 'developer')->get();
         $title = $this->title;
-        $titlepage = ucfirst($this->title);
-        $datapage = Role::all();
+        $titlepage = $this->title;
         $route = $this->title_route;
         $can = $this->title_can;
-        $title = $this->title;
-        $header_table = $this->table['header'];
-        $body_table = $this->table['body'];
+        $header_table = $this->table_data;
+        $body_table = $this->table_data;
         return view('admin.page', compact(
             'datapage',
             'title',
@@ -124,21 +110,24 @@ class RoleController extends Controller
             'title' => 'Adicionar ' . $this->title_breadcrumbs,
             'url' => '#',
         ];
+        $permission = Permission::get();
         $route = $this->title_route;
         $can = $this->title_can;
         $title = $this->title;
-        $titlepage = $this->title;
-        $form_create = $this->form;
+        $form_create = $this->inputs_forms;
         $sidebaradmin = SideBar::all();
         $breadcrumbs = $this->breadcrumbs;
         $sections = ["crud.create" => ['data' => [],]];
+        $titlepage = $this->title;
         return view('admin.page', compact(
             'route',
             'form_create',
             'title',
+            'can',
             'titlepage',
             'sidebaradmin',
             'breadcrumbs',
+            'permission',
             'sections'
         ));
     }
@@ -168,21 +157,21 @@ class RoleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Role $role): View
+    public function show($id): View
     {
         $this->breadcrumbs[] = [
             'title' => 'Detalhes ' . $this->title_breadcrumbs,
             'url' => '#',
         ];
-        $datapage = Role::find($role->id);
+        $datapage = Role::find($id);
         $titlepage = $this->title;
         $rolePermissions = Permission::join("role_has_permissions", "role_has_permissions.permission_id", "=", "permissions.id")
-            ->where("role_has_permissions.role_id", $role->id)
+            ->where("role_has_permissions.role_id", $id)
             ->get();
         $route = $this->title_route;
         $can = $this->title_can;
         $title = $this->title;
-        $form_show = $this->form;
+        $form_show = $this->inputs_forms;
         $sidebaradmin = SideBar::all();
         $breadcrumbs = $this->breadcrumbs;
         $sections = ["crud.show" => ['data' => [],]];
@@ -206,22 +195,22 @@ class RoleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Role $role): View
+    public function edit($id): View
     {
         $this->breadcrumbs[] =             [
             'title' => 'Editar ' . $this->title_breadcrumbs,
             'url' => '#',
         ];
-        $datapage = Role::find($role->id);
+        $datapage = Role::find($id);
+        $title = $this->title;
         $titlepage = $this->title;
         $permission = Permission::get();
-        $rolePermissions = DB::table("role_has_permissions")->where("role_has_permissions.role_id", $role->id)
+        $rolePermissions = DB::table("role_has_permissions")->where("role_has_permissions.role_id", $id)
             ->pluck('role_has_permissions.permission_id', 'role_has_permissions.permission_id')
             ->all();
         $route = $this->title_route;
         $can = $this->title_can;
-        $title = $this->title;
-        $form_edit = $this->form;
+        $form_edit = $this->inputs_forms;
         $sidebaradmin = SideBar::all();
         $breadcrumbs = $this->breadcrumbs;
         $sections = ["crud.edit" => ['data' => [],]];
@@ -271,7 +260,6 @@ class RoleController extends Controller
      */
     public function destroy($id): RedirectResponse
     {
-        /* DB::table("roles")->where('id', $id)->delete(); */
         Role::destroy($id);
 
         return redirect()->route("$this->title_route.index")

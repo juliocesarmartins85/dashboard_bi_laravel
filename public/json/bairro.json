@@ -1,0 +1,93 @@
+[
+    {
+        "id": 1,
+        "nome": "Centro",
+        "url": "centro",
+        "sigla": "MG",
+        "estado": "Minas Gerais",
+        "cidade": "Bom Sucesso",
+        "bairro": "Centro",
+        "cep": "",
+        "rua": "",
+        "created_at": "2024-11-19T17:47:37.000000Z",
+        "updated_at": "2024-11-19T17:47:37.000000Z"
+    },
+    {
+        "id": 2,
+        "nome": "Santa Terezinha",
+        "url": "santa-terezinha",
+        "sigla": "MG",
+        "estado": "Minas Gerais",
+        "cidade": "Bom Sucesso",
+        "bairro": "Santa Terezinha",
+        "cep": "",
+        "rua": "",
+        "created_at": "2024-11-19T17:47:37.000000Z",
+        "updated_at": "2024-11-19T17:47:37.000000Z"
+    },
+    {
+        "id": 3,
+        "nome": "São Sebastião",
+        "url": "sao-sebastiao",
+        "sigla": "MG",
+        "estado": "Minas Gerais",
+        "cidade": "Bom Sucesso",
+        "bairro": "São Sebastião",
+        "cep": "",
+        "rua": "",
+        "created_at": "2024-11-19T17:47:37.000000Z",
+        "updated_at": "2024-11-19T17:47:37.000000Z"
+    },
+    {
+        "id": 4,
+        "nome": "Vila Rica",
+        "url": "vila-rica",
+        "sigla": "MG",
+        "estado": "Minas Gerais",
+        "cidade": "Bom Sucesso",
+        "bairro": "Vila Rica",
+        "cep": "",
+        "rua": "",
+        "created_at": "2024-11-19T17:47:37.000000Z",
+        "updated_at": "2024-11-19T17:47:37.000000Z"
+    },
+    {
+        "id": 5,
+        "nome": "Alto dos Passos",
+        "url": "alto-dos-passos",
+        "sigla": "MG",
+        "estado": "Minas Gerais",
+        "cidade": "Bom Sucesso",
+        "bairro": "Alto dos Passos",
+        "cep": "",
+        "rua": "",
+        "created_at": "2024-11-19T17:47:37.000000Z",
+        "updated_at": "2024-11-19T17:47:37.000000Z"
+    },
+    {
+        "id": 6,
+        "nome": "Caiçara",
+        "url": "caicara",
+        "sigla": "MG",
+        "estado": "Minas Gerais",
+        "cidade": "Bom Sucesso",
+        "bairro": "Caiçara",
+        "cep": "",
+        "rua": "",
+        "created_at": "2024-11-19T17:47:37.000000Z",
+        "updated_at": "2024-11-19T17:47:37.000000Z"
+    },
+    {
+        "id": 7,
+        "nome": "Outros",
+        "url": "outros",
+        "sigla": "MG",
+        "estado": "Minas Gerais",
+        "cidade": "Bom Sucesso",
+        "bairro": "Caiçara",
+        "cep": "",
+        "rua": "",
+        "created_at": "2024-11-19T17:47:37.000000Z",
+        "updated_at": "2024-11-19T17:47:37.000000Z"
+    }
+]

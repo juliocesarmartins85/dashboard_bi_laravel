@@ -2,54 +2,167 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ProfileUser;
 use App\Models\SideBar;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class ProfileUserController extends Controller
 {
-        /**
-     * Create a new controller instance.
+    protected $title;
+    protected $title_can;
+    protected $title_route;
+    protected $inputs_forms;
+    protected $title_permission;
+    protected $title_breadcrumbs;
+    protected $breadcrumbs;
+    /**
+     * Display a listing of the resource.
      *
-     * @param
-     * @return void
+     * @return \Illuminate\Http\Response
      */
-    public function __construct()
+    function __construct()
     {
-        $this->middleware('auth');
+        $this->title = 'Usuário';
+        $this->title_permission = 'profileusers';
+        $this->title_route = 'profileusers';
+        $this->title_can = 'profileusers';
+        $this->title_breadcrumbs = 'Usuário';
+        $this->breadcrumbs = [
+            [
+                'title' => 'Home',
+                'url' => '/home',
+            ],
+            [
+                'title' => 'Index ' . $this->title_breadcrumbs,
+                'url' => "/{$this->title_route}",
+            ]
+        ];
+        $this->middleware("permission:$this->title_permission-listar|$this->title_permission-criar|$this->title_permission-editar|$this->title_permission-deletar", ['only' => ['index', 'show']]);
+        $this->middleware("permission:$this->title_permission-criar", ['only' => ['create', 'store']]);
+        $this->middleware("permission:$this->title_permission-editar", ['only' => ['edit', 'update']]);
+        $this->middleware("permission:$this->title_permission-deletar", ['only' => ['destroy']]);
+        $this->inputs_forms = [
+            [
+                'title' => 'Mac address',
+                'type' => 'text',
+                'name' => 'mac_address',
+                'placeholder' => 'Mac address',
+                'tag' => 'input',
+                'value' => 'mac_address',
+            ],
+            [
+                'title' => 'Nome',
+                'type' => 'text',
+                'name' => 'name',
+                'placeholder' => 'Nome',
+                'tag' => 'input',
+                'value' => 'name',
+            ],
+            [
+                'title' => 'Telefone',
+                'type' => 'text',
+                'name' => 'telefone',
+                'placeholder' => 'Telefone',
+                'tag' => 'input',
+                'value' => 'telefone',
+            ],
+            [
+                'title' => 'Bairro',
+                'type' => 'text',
+                'name' => 'bairro',
+                'placeholder' => 'Bairro',
+                'tag' => 'input',
+                'value' => 'bairro',
+            ],
+            [
+                'title' => 'Cidade',
+                'type' => 'text',
+                'name' => 'cidade',
+                'placeholder' => 'Cidade',
+                'tag' => 'input',
+                'value' => 'cidade',
+            ],
+        ];
     }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(): View
     {
-        $title = 'perfil';
-        $titlepage = ucfirst($title);
-        $breadcrumbs = [
+        $sidebaradmin = SideBar::all();
+        $breadcrumbs = $this->breadcrumbs;
+        $sections = ["crud.index" => ['data' => [],]];
+        $title = $this->title;
+        $titlepage = $this->title;
+        $datapage = ProfileUser::all();
+        $route = $this->title_route;
+        $can = $this->title_can;
+        $title = $this->title;
+        $header_table = [
             [
-                'title' => "Home",
-                'url' => route("home")
+                'title' => 'Mac Address',
+                'width' => '',
             ],
-/*             [
-                'title' => "{$titlepage}",
-                'url' => route("admin.$title")
-            ], */
+            [
+                'title' => 'Nome',
+                'width' => '',
+            ],
+            [
+                'title' => 'Telefone',
+                'width' => '',
+            ],
+            [
+                'title' => 'Bairro',
+                'width' => '',
+            ],
+            [
+                'title' => 'Cidade',
+                'width' => '',
+            ],
         ];
-        //WebHelper::logdata('1',  '1',  $titlepage,  User::find(Auth::user()->id)->name . " Acessou - {$titlepage}");
-        return view('admin.page', [
-            'sidebaradmin' => SideBar::all(),
-            'breadcrumbs' => $breadcrumbs,
-            'titlepage' => 'Usuário',
-            'sections' => [
-                'my_profile' => [
-                    'col' => '12',
-                    'data' => ['user' => User::find(Auth::user()->id)],
-                ],
-            ]
-        ]);
+        $body_table = [
+            [
+                'title' => 'mac_address',
+                'value' => 'mac_address',
+                'width' => '',
+            ],
+            [
+                'title' => 'name',
+                'value' => 'name',
+                'width' => '',
+            ],
+            [
+                'title' => 'telefone',
+                'value' => 'telefone',
+                'width' => '',
+            ],
+            [
+                'title' => 'bairro',
+                'value' => 'bairro',
+                'width' => '',
+            ],
+            [
+                'title' => 'cidade',
+                'value' => 'cidade',
+                'width' => '',
+            ],
+        ];
+        return view('admin.page', compact(
+            'datapage',
+            'title',
+            'header_table',
+            'body_table',
+            'route',
+            'can',
+            'sidebaradmin',
+            'breadcrumbs',
+            'titlepage',
+            'sections'
+        ));
     }
 
     /**
@@ -57,9 +170,29 @@ class ProfileUserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): View
     {
-        //
+        $this->breadcrumbs[] = [
+            'title' => 'Adicionar ' . $this->title_breadcrumbs,
+            'url' => '#',
+        ];
+        $route = $this->title_route;
+        $can = $this->title_can;
+        $title = $this->title;
+        $titlepage = $this->title;
+        $form_create = $this->inputs_forms;
+        $sidebaradmin = SideBar::all();
+        $breadcrumbs = $this->breadcrumbs;
+        $sections = ["crud.create" => ['data' => [],]];
+        return view('admin.page', compact(
+            'route',
+            'form_create',
+            'title',
+            'titlepage',
+            'sidebaradmin',
+            'breadcrumbs',
+            'sections'
+        ));
     }
 
     /**
@@ -68,66 +201,118 @@ class ProfileUserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        //
+        request()->validate([
+            'name' => 'required',
+            'detail' => 'required',
+        ]);
+
+        ProfileUser::create($request->all());
+
+        return redirect()->route("$this->title_route.index")
+            ->with('success', "Registro adicionado com sucesso.");
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\ProfileUser  $profileuser
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(ProfileUser $profileuser): View
     {
-        //
+        $this->breadcrumbs[] = [
+            'title' => 'Detalhes ' . $this->title_breadcrumbs,
+            'url' => '#',
+        ];
+        $datapage = $profileuser;
+        $route = $this->title_route;
+        $can = $this->title_can;
+        $title = $this->title;
+        $titlepage = $this->title;
+        $form_show = $this->inputs_forms;
+        $sidebaradmin = SideBar::all();
+        $breadcrumbs = $this->breadcrumbs;
+        $sections = ["crud.show" => ['data' => [],]];
+        return view('admin.page', compact(
+            'datapage',
+            'form_show',
+            'route',
+            'can',
+            'title',
+            'titlepage',
+            'sidebaradmin',
+            'breadcrumbs',
+            'sections'
+        ));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\ProfileUser  $profileuser
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(ProfileUser $profileuser): View
     {
-        //
+        $this->breadcrumbs[] =             [
+            'title' => 'Editar ' . $this->title_breadcrumbs,
+            'url' => '#',
+        ];
+        $datapage = $profileuser;
+        $route = $this->title_route;
+        $can = $this->title_can;
+        $title = $this->title;
+        $titlepage = $this->title;
+        $form_edit = $this->inputs_forms;
+        $sidebaradmin = SideBar::all();
+        $breadcrumbs = [];
+        $sections = ["crud.edit" => ['data' => [],]];
+        return view('admin.page', compact(
+            'datapage',
+            'form_edit',
+            'route',
+            'can',
+            'title',
+            'titlepage',
+            'sidebaradmin',
+            'breadcrumbs',
+            'sections'
+        ));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\ProfileUser  $profileuser
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, ProfileUser $profileuser): RedirectResponse
     {
-        $item = User::find(Auth::user()->id);
-        $item->name = $request->fullName;
-        $item->email = $request->email;
-        $item->funcao = $request->job;
-        $item->desc = $request->about;
-        $item->endereco = $request->address;
-        $item->facebook = $request->facebook;
-        $item->twitter = $request->twitter;
-        $item->instagram = $request->instagram;
-        $item->linkedin = $request->linkedin;
-        $item->organizacao = $request->company;
-        $item->telefone = $request->phone;
-        $item->save();
-        return back()->with('success', 'Perfil atualizado com sucesso!');
+        request()->validate([
+            'name' => 'required',
+            'detail' => 'required',
+        ]);
+
+        $profileuser->update($request->all());
+
+        return redirect()->route("$this->title_route.index")
+            ->with('warning', "Registro atualizado com sucesso.");
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\ProfileUser  $profileuser
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(ProfileUser $profileuser): RedirectResponse
     {
-        //
+        $profileuser->delete();
+
+        return redirect()->route("$this->title_route.index")
+            ->with('warning', "Registro excluido com sucesso");
     }
 }

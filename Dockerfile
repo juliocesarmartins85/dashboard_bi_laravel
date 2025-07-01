@@ -1,6 +1,5 @@
 FROM php:8.2-fpm
 
-# set your user name, ex: user=fulano
 ARG user=julio
 ARG uid=1000
 
@@ -12,8 +11,12 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip \
-    nodejs npm \
     unzip
+
+# Adiciona Node.js (ex: versão LTS atual)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm
 
 # Install Postgre PDO
 RUN apt-get install -y libpq-dev \

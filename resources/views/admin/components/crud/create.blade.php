@@ -5,10 +5,10 @@
         <div class="card-header mb-3">
             <div class="row">
                 <div class="col-md-10">
-                    <h3>Adicionar Novo</h3>
+                    <h3>Adicionar {{ $titlepage }}</h3>
                 </div>
                 <div class="col-md-2 ms-auto d-flex justify-content-end">
-                    <a class="btn btn-lg btn-primary rounded-circle" href="{{ route("$route.index") }}"><i
+                    <a class="btn btn-lg btn-primary" href="{{ route("$route.index") }}"><i
                             class="bi bi-arrow-left fs-3"></i></a>
                 </div>
             </div>
@@ -82,9 +82,13 @@
                                 <div class="col-sm-10">
                                     <select class="form-select" multiple aria-label="multiple select example"
                                         name="{{ $frm['name'] }}[]" id="{{ $frm['name'] }}">
-                                        @foreach (json_decode($frm['options']) as $keyoptions => $options)
+                                        @foreach ($frm['options'] as $keyoptions => $options)
                                             {{ $options->id }}
-                                            <option value="{{ $options->id }}">{{ $options->title }}</option>
+                                            @if ($frm['name'] == 'routers')
+                                                <option value="{{ $options->id }}">{{ $options->nome }}</option>
+                                            @else
+                                                <option value="{{ $options->id }}">{{ $options->question }}</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                 </div>
@@ -96,7 +100,7 @@
                                 <label class="form-label" for="inputFile">{{ ucwords($frm['title']) }}:</label>
                                 <input type="file" onchange="upload_check()" name="{{ $frm['name'] }}"
                                     id="inputFile{{ $frm['name'] }}" class="form-control @error('file') is-invalid @enderror"
-                                    accept="video/*, image/png, image/jpeg, .pdf" {{-- required --}}>
+                                    accept="video/*, image/png, image/jpeg, .pdf" required>
                                 <input id="max_id" type="hidden" name="MAX_FILE_SIZE" value="200000000" />
                                 {{--                                 @error('file')
                                     <span class="text-danger">{{ $message }}</span>
@@ -155,21 +159,17 @@
                 @isset($rolesuser)
                     <div class="col-md-12">
                         <div class="form-group">
-                            <strong>Nivel de Permissão:</strong>
-                            <select name="roles[]" class="form-control" multiple>
-                                @foreach ($rolesuser as $value => $label)
-                                    <option value="{{ $value }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
+                            <strong>Acessos:</strong>
+                            {!! Form::select('roles[]', $rolesuser, [], ['class' => 'form-control', 'multiple']) !!}
                         </div>
                     </div>
                 @endisset
-                <div class="col-12">
-                    <button class="btn btn-lg btn-success rounded-circle" type="submit"><i
-                        class="bi bi-save fs-4"></i></button>
+                <div class="col-12 ms-auto d-flex justify-content-end">
+                    <button class="btn btn-lg btn-success" type="submit"><i class="ri-save-3-line fs-2"></i></button>
                 </div>
             </form><!-- End Custom Styled Validation -->
         </div>
+
     </div><!-- End Card with header and footer -->
 @endsection
 @push('scripts')

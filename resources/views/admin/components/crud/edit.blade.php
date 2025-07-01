@@ -4,18 +4,19 @@
 @section('content')
     <!-- Card with header and footer -->
     <div class="card">
+
         <div class="card-header">
             <div class="row">
                 <div class="col-md-10">
-                    <h2>Editar</h2>
+                    <h3>Editar {{ $titlepage }}</h3>
                 </div>
                 <div class="col-md-2 ms-auto d-flex justify-content-end">
-                    <a class="btn btn-lg btn-primary rounded-circle" href="{{ route("$route.index") }}"><i
+                    <a class="btn btn-lg btn-primary" href="{{ route("$route.index") }}"><i
                             class="bi bi-arrow-left fs-3"></i></a>
                 </div>
             </div>
         </div>
-        <div class="card-body my-5">
+        <div class="card-body">
             <div id="form"></div>
             <!-- Custom Styled Validation -->
             <form action="{{ route("$route.update", $datapage->id) }}" method="POST" class="row g-3 needs-validation"
@@ -59,11 +60,14 @@
                             <div class="row mb-3">
                                 <label for="inputDate" class="col-sm-2 col-form-label">{{ ucwords($frm['title']) }}</label>
                                 <div class="col-sm-4">
-                                    <input type="date" name="{{ $frm['name'] }}[]" class="form-control" {{-- required --}}>
+                                    <input type="date" name="{{ $frm['name'] }}[]" class="form-control"
+                                        value="{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i', $datapage->{$frm['value']})->format('Y-m-d') }}"
+                                        required>
                                 </div>
                                 <div class="col-sm-2">
-                                    <input type="time" name="{{ $frm['name'] }}[]" class="form-control" step="1"
-                                        {{-- required --}}>
+                                    <input type="time" name="{{ $frm['name'] }}[]" class="form-control"
+                                        value="{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i', $datapage->{$frm['value']})->format('H:m') }}"
+                                        required>
                                 </div>
                             </div>
                         @break
@@ -74,9 +78,10 @@
                                 <div class="col-sm-3">
                                     <select class="form-select" aria-label="Default select example" name="{{ $frm['name'] }}"
                                         id="{{ $frm['name'] }}">
+                                        {{-- <option>Selecione uma opção</option> --}}
                                         @foreach ($frm['options'] as $keyoptions => $options)
                                             <option value="{{ $options['type'] }}"
-                                                {{ $datapage->{$frm['value']} == $options['type'] ? 'selected' : '' }}>
+                                                {{ $datapage->{$frm['value']} ? '' : 'selected' }}>
                                                 {{ ucwords($options['title']) }}</option>
                                         @endforeach
                                     </select>
@@ -91,10 +96,10 @@
                                     <select class="form-select" multiple aria-label="multiple select example"
                                         name="{{ $frm['name'] }}[]" id="{{ $frm['name'] }}">
                                         <option>Use Ctrl para selecionar as perguntas.</option>
-                                        @foreach (json_decode($frm['options']) as $keyoptions => $options)
+                                        @foreach ($frm['options'] as $keyoptions => $options)
                                             <option value="{{ $options->id }}"
                                                 {{ in_array($options->id, json_decode($datapage->{$frm['value']})) ? 'selected' : '' }}>
-                                                {{ $options->title }}</option>
+                                                {{ $frm['name'] == 'routers' ? $options->nome : $options->question }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -102,40 +107,16 @@
                         @break
 
                         @case('arquivo')
-                            <div class="row mb-3">
+                            <div class="mb-3">
                                 <label class="form-label" for="inputFile">{{ ucwords($frm['title']) }}:</label>
                                 <input type="file" onchange="upload_check()" name="{{ $frm['name'] }}" id="inputFile"
-                                    class="form-control @error('file') is-invalid @enderror"
-                                    accept="video/*, image/png, image/jpeg, .pdf" value="{{ asset($datapage->{$frm['value']}) }}">
+                                    class="form-control @error('file') is-invalid @enderror" accept="video/*, image/png, image/jpeg"
+                                    value="{{ asset($datapage->{$frm['value']}) }}">
                                 <input id="max_id" type="hidden" name="MAX_FILE_SIZE" value="200000000" />
-                                {{-- Regra para pdf banner --}}
-                                @if ($frm['name'] == 'pdf')
-                                    <input type="hidden" name="{{ $frm['name'] . '_old' }}"
-                                        value="{{ App\Models\Footer::where('link', $datapage->{$frm['value']})->first()->doc ?? '' }}">
-                                @else
-                                @endif
-                                @if (!empty($datapage->{$frm['value']}))
-                                    {{-- Regra para imagem banner --}}
-                                    @if (isset($frm['imgmobile']))
-                                        <div class="ml-2 my-3 col-sm-6">
-                                            <img src="{{ asset(str_replace('.', '-mobile.', $datapage->{$frm['value']})) }}"
-                                                id="preview" class="img-thumbnail">
-                                        </div>
-                                        <input type="hidden" name="{{ $frm['name'] . '_old' }}"
-                                            value="{{ str_replace('.', '-mobile.', $datapage->{$frm['value']}) }}">
-                                    @else
-                                        {{-- Regra para pdf banner --}}
-                                        @if ($frm['name'] == 'pdf')
-                                        @else
-                                            <div class="ml-2 my-3 col-sm-6">
-                                                <img src="{{ asset($datapage->{$frm['value']}) }}" id="preview"
-                                                    class="img-thumbnail">
-                                            </div>
-                                            <input type="hidden" name="{{ $frm['name'] . '_old' }}"
-                                                value="{{ $datapage->{$frm['value']} }}">
-                                        @endif
-                                    @endif
-                                @endif
+                                <input type="hidden" name="{{ $frm['name'] . '_old' }}" value="{{ $datapage->{$frm['value']} }}">
+                                <div class="ml-2 my-3 col-sm-6">
+                                    <img src="{{ asset($datapage->{$frm['value']}) }}" id="preview" class="img-thumbnail">
+                                </div>
                             </div>
                         @break
 
@@ -147,10 +128,6 @@
                                     <input type="hidden" id="quill_html" name="{{ $frm['name'] }}">
                                 </div>
                             </div>
-                        @break
-
-                        @case('hidden')
-                            <input type="{{ $frm['type'] }}" id="{{ $frm['name'] }}" name="{{ $frm['name'] }}">
                         @break
 
                         @default
@@ -165,16 +142,27 @@
                                     </div>
                                 </div>
                             @else
-                                <div class="col-md-12 mb-3">
-                                    <label for="{{ $frm['name'] }}" class="form-label">{{ ucwords($frm['title']) }}</label>
-                                    <input type="{{ $frm['type'] }}" name="{{ $frm['name'] }}" class="form-control"
-                                        placeholder="{{ ucwords($frm['placeholder']) }}" id="{{ $frm['name'] }}"
-                                        value="{{ is_array(json_decode($datapage->{$frm['value']})) ? '' : $datapage->{$frm['value']} }}"
-                                        required>
-                                    <div class="invalid-feedback">
-                                        Digite um valor válido
+                                @if (is_array(json_decode($datapage->{$frm['value']})))
+                                    <div class="col-md-12 mb-3">
+                                        <label for="{{ $frm['name'] }}" class="form-label">{{ ucwords($frm['title']) }}</label>
+                                        <input type="{{ $frm['type'] }}" name="{{ $frm['name'] }}" class="form-control"
+                                            placeholder="{{ ucwords($frm['placeholder']) }}" id="{{ $frm['name'] }}"
+                                            value="{{ implode('/', json_decode($datapage->{$frm['value']})) }}" required>
+                                        <div class="invalid-feedback">
+                                            Digite um valor válido
+                                        </div>
                                     </div>
-                                </div>
+                                @else
+                                    <div class="col-md-12 mb-3">
+                                        <label for="{{ $frm['name'] }}" class="form-label">{{ ucwords($frm['title']) }}</label>
+                                        <input type="{{ $frm['type'] }}" name="{{ $frm['name'] }}" class="form-control"
+                                            placeholder="{{ ucwords($frm['placeholder']) }}" id="{{ $frm['name'] }}"
+                                            value="{{ $datapage->{$frm['value']} }}" required>
+                                        <div class="invalid-feedback">
+                                            Digite um valor válido
+                                        </div>
+                                    </div>
+                                @endif
                             @endif
                     @endswitch
                 @endforeach
@@ -182,7 +170,6 @@
                     <div class="col-md-12">
                         <legend class="col-form-label col-sm-2 pt-0">Permissões</legend>
                         <div class="col-sm-10">
-
                             <div class="col-sm-10">
                                 @foreach ($permission as $value)
                                     <div class="form-check form-switch form-check-inline">
@@ -201,14 +188,14 @@
                 @isset($roles)
                     <div class="col-md-12">
                         <div class="form-group">
-                            <strong>Role:</strong>
+                            <strong>Acessos:</strong>
                             {!! Form::select('roles[]', $roles, $userRole, ['class' => 'form-control', 'multiple']) !!}
                         </div>
                     </div>
                 @endisset
-                <div class="col-12">
-                    <button class="btn btn-lg btn-success rounded-circle" type="submit"><i
-                            class="bi bi-save fs-4"></i></button>
+                <div class="col-12 ms-auto d-flex justify-content-end">
+                    <button class="btn btn-success btn-lg" type="submit"><i
+                            class="ri-save-3-line fs-2"></i></button>
                 </div>
             </form><!-- End Custom Styled Validation -->
         </div>

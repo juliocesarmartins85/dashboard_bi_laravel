@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\WebHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\SideBar;
@@ -10,6 +11,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -18,11 +20,10 @@ class UserController extends Controller
     protected $title;
     protected $title_can;
     protected $title_route;
+    protected $table_data;
     protected $title_permission;
     protected $title_breadcrumbs;
     protected $breadcrumbs;
-    protected $table;
-    protected $form;
     /**
      * Display a listing of the resource.
      *
@@ -30,87 +31,25 @@ class UserController extends Controller
      */
     function __construct()
     {
-        $this->title = 'Usuário';
+        $this->title = 'Usuario';
         $this->title_permission = 'usuario';
         $this->title_route = 'users';
         $this->title_can = 'usuario';
         $this->title_breadcrumbs = 'Usuario';
-        $this->middleware("permission:$this->title_permission-listar|$this->title_permission-criar|$this->title_permission-editar|$this->title_permission-deletar", ['only' => ['index', 'show']]);
-        $this->middleware("permission:$this->title_permission-criar", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$this->title_permission-editar", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$this->title_permission-deletar", ['only' => ['destroy']]);
         $this->breadcrumbs = [
             [
                 'title' => 'Home',
                 'url' => '/home',
             ],
             [
-                'title' => 'Index ' . $this->title_breadcrumbs,
+                'title' => 'Todos Registros ' . $this->title_breadcrumbs,
                 'url' => "/{$this->title_route}",
             ]
         ];
-        $this->table = [
-            'header' => [
-                [
-                    'title' => 'No',
-                    'width' => '',
-                ],
-                [
-                    'title' => 'Nome',
-                    'width' => '',
-                ],
-                [
-                    'title' => 'Email',
-                    'width' => '',
-                ],
-                [
-                    'title' => 'Ações',
-                    'width' => '160',
-                ],
-            ],
-            'body' => [
-                [
-                    'title' => 'name',
-                ],
-                [
-                    'title' => 'email',
-                ],
-            ]
-        ];
-        $this->form = [
-            [
-                'title' => 'Nome Completo',
-                'type' => 'text',
-                'name' => 'name',
-                'value' => 'name',
-                'placeholder' => 'Nome Completo',
-                'tag' => 'input',
-            ],
-            [
-                'title' => 'email',
-                'type' => 'text',
-                'name' => 'email',
-                'value' => 'email',
-                'placeholder' => 'email',
-                'tag' => 'input',
-            ],
-            [
-                'title' => 'password',
-                'type' => 'text',
-                'name' => 'password',
-                'value' => '',
-                'placeholder' => 'password',
-                'tag' => 'input',
-            ],
-            [
-                'title' => 'confirm-password',
-                'type' => 'text',
-                'name' => 'confirm-password',
-                'value' => 'confirm-password',
-                'placeholder' => 'confirm-password',
-                'tag' => 'input',
-            ],
-        ];
+        $this->middleware("permission:$this->title_permission-listar|$this->title_permission-criar|$this->title_permission-editar|$this->title_permission-deletar", ['only' => ['index', 'show']]);
+        $this->middleware("permission:$this->title_permission-criar", ['only' => ['create', 'store']]);
+        $this->middleware("permission:$this->title_permission-editar", ['only' => ['edit', 'update']]);
+        $this->middleware("permission:$this->title_permission-deletar", ['only' => ['destroy']]);
     }
     /**
      * Display a listing of the resource.
@@ -122,16 +61,35 @@ class UserController extends Controller
         $sidebaradmin = SideBar::all();
         $breadcrumbs = $this->breadcrumbs;
         $sections = ["crud.index" => ['data' => [],]];
-        $title = $this->title;
-        $titlepage = ucfirst($this->title);
-        $datapage = User::all();
+        $datauser = User::whereNotIn('funcaosis', ['developer'])->get();
         $route = $this->title_route;
         $can = $this->title_can;
         $title = $this->title;
-        $header_table = $this->table['header'];
-        $body_table = $this->table['body'];
+        $titlepage = $this->title;
+        $header_table = [
+            [
+                'title' => 'Nome',
+                'width' => '',
+            ],
+            [
+                'title' => 'Email',
+                'width' => '',
+            ],
+            [
+                'title' => 'Acesso',
+                'width' => '',
+            ],
+        ];
+        $body_table = [
+            [
+                'title' => 'name',
+            ],
+            [
+                'title' => 'email',
+            ],
+        ];
         return view('admin.page', compact(
-            'datapage',
+            'datauser',
             'title',
             'header_table',
             'body_table',
@@ -155,14 +113,43 @@ class UserController extends Controller
             'title' => 'Adicionar ' . $this->title_breadcrumbs,
             'url' => '#',
         ];
-        $rolesuser = Role::pluck('name', 'name')->all();
+        $rolesuser = Role::where('name', '!=', 'developer')->pluck('name', 'name')->all();
         $route = $this->title_route;
         $can = $this->title_can;
         $title = $this->title;
         $titlepage = $this->title;
-        $form_create = $this->form;
+        $form_create = [
+            [
+                'title' => 'Nome',
+                'type' => 'text',
+                'name' => 'name',
+                'placeholder' => 'Nome Completo',
+                'tag' => 'input',
+            ],
+            [
+                'title' => 'email',
+                'type' => 'text',
+                'name' => 'email',
+                'placeholder' => 'email',
+                'tag' => 'input',
+            ],
+            [
+                'title' => 'Senha',
+                'type' => 'text',
+                'name' => 'password',
+                'placeholder' => 'password',
+                'tag' => 'input',
+            ],
+            [
+                'title' => 'Confirmar Senha',
+                'type' => 'text',
+                'name' => 'confirm-password',
+                'placeholder' => 'confirm-password',
+                'tag' => 'input',
+            ],
+        ];
         $sidebaradmin = SideBar::all();
-        $breadcrumbs = $this->breadcrumbs;
+        $breadcrumbs = [];
         $sections = ["crud.create" => ['data' => [],]];
         return view('admin.page', compact(
             'route',
@@ -196,9 +183,10 @@ class UserController extends Controller
 
         $user = User::create($input);
         $user->assignRole($request->input('roles'));
+        $user->update(['funcaosis' => $request->roles[0]]);
 
         return redirect()->route('users.index')
-            ->with('success', 'Usuário criado com sucesso');
+            ->with('success', "Registro adicionado com sucesso.");
     }
 
     /**
@@ -207,18 +195,33 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user): View
+    public function show($id): View
     {
         $this->breadcrumbs[] = [
             'title' => 'Detalhes ' . $this->title_breadcrumbs,
             'url' => '#',
         ];
-        $datapage = $user;
+        $datapage = User::find($id);
         $route = $this->title_route;
         $can = $this->title_can;
         $title = $this->title;
         $titlepage = $this->title;
-        $form_show = $this->form;
+        $form_show = [
+            [
+                'title' => 'Nome',
+                'type' => 'text',
+                'name' => 'name',
+                'placeholder' => 'Nome Completo',
+                'tag' => 'input',
+            ],
+            [
+                'title' => 'email',
+                'type' => 'text',
+                'name' => 'email',
+                'placeholder' => 'email',
+                'tag' => 'input',
+            ],
+        ];
         $sidebaradmin = SideBar::all();
         $breadcrumbs = $this->breadcrumbs;
         $sections = ["crud.show" => ['data' => [],]];
@@ -241,21 +244,56 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(User $user): View
+    public function edit($id): View
     {
         $this->breadcrumbs[] =             [
             'title' => 'Editar ' . $this->title_breadcrumbs,
             'url' => '#',
         ];
-        $datapage = $user;
+        $datapage = User::find($id);
         $route = $this->title_route;
         $can = $this->title_can;
         $title = $this->title;
         $titlepage = $this->title;
-        $form_edit = $this->form;
+        $form_edit = [
+            [
+                'title' => 'Nome Completo',
+                'type' => 'text',
+                'name' => 'name',
+                'value' => 'name',
+                'placeholder' => 'Nome Completo',
+                'tag' => 'input',
+            ],
+            [
+                'title' => 'email',
+                'type' => 'text',
+                'name' => 'email',
+                'value' => 'email',
+                'placeholder' => 'email',
+                'tag' => 'input',
+            ],
+            [
+                'title' => 'password',
+                'type' => 'text',
+                'name' => 'password',
+                'value' => '',
+                'placeholder' => 'password',
+                'tag' => 'input',
+            ],
+            [
+                'title' => 'confirm-password',
+                'type' => 'text',
+                'name' => 'confirm-password',
+                'value' => 'confirm-password',
+                'placeholder' => 'confirm-password',
+                'tag' => 'input',
+            ],
+        ];
         $sidebaradmin = SideBar::all();
         $breadcrumbs = $this->breadcrumbs;
         $sections = ["crud.edit" => ['data' => [],]];
+        $roles = Role::where('name', '!=', 'developer')->pluck('name', 'name')->all();
+        $userRole = $datapage->roles->where('name', '!=', 'developer')->pluck('name', 'name')->all();
         return view('admin.page', compact(
             'datapage',
             'form_edit',
@@ -265,7 +303,9 @@ class UserController extends Controller
             'titlepage',
             'sidebaradmin',
             'breadcrumbs',
-            'sections'
+            'sections',
+            'roles',
+            'userRole'
         ));
     }
 
@@ -298,8 +338,10 @@ class UserController extends Controller
 
         $user->assignRole($request->input('roles'));
 
+        $user->update(['funcaosis' => $request->roles[0]]);
+
         return redirect()->route('users.index')
-            ->with('success', 'Usuário atualizado com sucesso');
+            ->with('warning', "Registro atualizado com sucesso.");
     }
 
     /**
@@ -312,6 +354,56 @@ class UserController extends Controller
     {
         User::find($id)->delete();
         return redirect()->route('users.index')
-            ->with('success', 'Usuário excluído com sucesso');
+            ->with('warning', "Registro excluido com sucesso");
+    }
+    /**
+     *
+     */
+    public function config_user()
+    {
+        $title = 'perfil';
+        $titlepage = ucfirst($title);
+        $breadcrumbs = [
+            [
+                'title' => "Home",
+                'url' => route("home")
+            ],
+        ];
+        WebHelper::logdata('1',  '1',  $titlepage,  User::find(Auth::user()->id)->name . " Acessou - {$titlepage}");
+        return view('admin.page', [
+            'sidebaradmin' => SideBar::all(),
+            'breadcrumbs' => $breadcrumbs,
+            'titlepage' => 'Usuário',
+            'sections' => [
+                'myProfile' => [
+                    'col' => '12',
+                    'data' => ['user' => User::find(Auth::user()->id)],
+                ],
+            ]
+        ]);
+    }
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update_user(Request $request, $id)
+    {
+        $item = User::find(Auth::user()->id);
+        $item->name = $request->fullName;
+        $item->email = $request->email;
+        $item->funcao = $request->job;
+        $item->desc = $request->about;
+        $item->endereco = $request->address;
+        $item->facebook = $request->facebook;
+        $item->twitter = $request->twitter;
+        $item->instagram = $request->instagram;
+        $item->linkedin = $request->linkedin;
+        $item->organizacao = $request->company;
+        $item->telefone = $request->phone;
+        $item->save();
+        return back()->with('success', 'Perfil atualizado com sucesso!');
     }
 }

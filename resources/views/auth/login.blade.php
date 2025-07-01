@@ -5,17 +5,18 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <meta content="" name="description">
-    <meta content="" name="keywords">
+    <meta content="{{ App\Models\Site::first()->description }}" name="description">
+    <meta content="{{ App\Models\Site::first()->keywords }}" name="keywords">
+    @stack('meta')
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Login') }}</title>
+    <title>{{ App\Models\Site::first()->name }}</title>
 
     <!-- Favicons -->
-    <link href="admin/assets/admin/img/favicon.png" rel="icon">
-    <link href="admin/assets/admin/img/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="{{ App\Models\Site::first()->favicon }}" rel="icon">
+    <link href="{{ App\Models\Site::first()->favicon }}" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -24,17 +25,23 @@
         rel="stylesheet">
 
     <!-- Vendor CSS Files -->
-    <link href="admin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="admin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-    <link href="admin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-    <link href="admin/assets/vendor/quill/quill.snow.css" rel="stylesheet">
-    <link href="admin/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
-    <link href="admin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
-    <link href="admin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+    <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
     <!-- Template Main CSS File -->
-    <link href="admin/assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
 
+    <!-- =======================================================
+  * Template Name: NiceAdmin - v2.5.0
+  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
 </head>
 
 <body>
@@ -48,17 +55,12 @@
                     <div class="row justify-content-center">
                         <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
 
-                            <div class="d-flex justify-content-center py-4">
-                                <a href="#" class=" d-flex align-items-center w-auto">
-                                    <img class="img-fluid" src="{{ asset('web/assets/img/site/fonelight/logo-fonelight-fibra.svg') }}" alt="">
-                                </a>
-                            </div><!-- End Logo -->
-
                             <div class="card mb-3">
 
                                 <div class="card-body">
 
                                     <div class="pt-4 pb-2">
+                                        <img src="{{ asset(App\Models\Site::first()->logo) }}" class="w-100"  alt="">
                                         <h5 class="card-title text-center pb-0 fs-4">Faça login na sua conta</h5>
                                         <p class="text-center small">Digite seu nome de usuário e senha para entrar</p>
                                     </div>
@@ -95,44 +97,14 @@
                                                 </span>
                                             @enderror
                                         </div>
-
-                                        {{-- <div class="col-12">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="remember"
-                                                    id="remember" {{ old('remember') ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="remember">
-                                                    {{ __('Lembre de mim') }}
-                                                </label>
-                                            </div>
-                                        </div> --}}
-
                                         <div class="col-12">
                                             <button class="btn btn-primary w-100"
                                                 type="submit">{{ __('Login') }}</button>
-                                            {{-- @if (Route::has('password.request'))
-                                                <a class="btn btn-link" href="{{ route('password.request') }}">
-                                                    {{ __('Esqueceu sua senha?') }}
-                                                </a>
-                                            @endif --}}
                                         </div>
-
-                                        {{-- <div class="col-12">
-                                            <p class="small mb-0">Não possui conta? <a
-                                                    href="{{ route('register') }}">{{ __('Criar') }}</a></p>
-                                        </div> --}}
                                     </form>
 
                                 </div>
                             </div>
-
-                            {{-- <div class="credits">
-                                <!-- All the links in the footer should remain intact. -->
-                                <!-- You can delete the links only if you purchased the pro version. -->
-                                <!-- Licensing information: https://bootstrapmade.com/license/ -->
-                                <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-                                Designed by <a href="#">Julio Cesar Martins</a>
-                            </div> --}}
-
                         </div>
                     </div>
                 </div>
@@ -146,17 +118,17 @@
             class="bi bi-arrow-up-short"></i></a>
 
     <!-- Vendor JS Files -->
-    <script src="admin/assets/vendor/apexcharts/apexcharts.min.js"></script>
-    <script src="admin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="admin/assets/vendor/chart.js/chart.umd.js"></script>
-    <script src="admin/assets/vendor/echarts/echarts.min.js"></script>
-    <script src="admin/assets/vendor/quill/quill.min.js"></script>
-    <script src="admin/assets/vendor/simple-datatables/simple-datatables.js"></script>
-    <script src="admin/assets/vendor/tinymce/tinymce.min.js"></script>
-    <script src="admin/assets/vendor/php-email-form/validate.js"></script>
+    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="assets/vendor/echarts/echarts.min.js"></script>
+    <script src="assets/vendor/quill/quill.min.js"></script>
+    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="assets/vendor/php-email-form/validate.js"></script>
 
     <!-- Template Main JS File -->
-    <script src="admin/assets/js/main.js"></script>
+    <script src="assets/js/main.js"></script>
 
 </body>
 

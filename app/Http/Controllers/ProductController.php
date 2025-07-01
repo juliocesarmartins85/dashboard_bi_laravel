@@ -13,11 +13,10 @@ class ProductController extends Controller
     protected $title;
     protected $title_can;
     protected $title_route;
+    protected $inputs_forms;
     protected $title_permission;
     protected $title_breadcrumbs;
     protected $breadcrumbs;
-    protected $table;
-    protected $form;
     /**
      * Display a listing of the resource.
      *
@@ -30,10 +29,6 @@ class ProductController extends Controller
         $this->title_route = 'products';
         $this->title_can = 'product';
         $this->title_breadcrumbs = 'Produto';
-        $this->middleware("permission:$this->title_permission-listar|$this->title_permission-criar|$this->title_permission-editar|$this->title_permission-deletar", ['only' => ['index', 'show']]);
-        $this->middleware("permission:$this->title_permission-criar", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$this->title_permission-editar", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$this->title_permission-deletar", ['only' => ['destroy']]);
         $this->breadcrumbs = [
             [
                 'title' => 'Home',
@@ -44,35 +39,11 @@ class ProductController extends Controller
                 'url' => "/{$this->title_route}",
             ]
         ];
-        $this->table = [
-            'header' => [
-                [
-                    'title' => 'No',
-                    'width' => '',
-                ],
-                [
-                    'title' => 'Name',
-                    'width' => '',
-                ],
-                [
-                    'title' => 'Details',
-                    'width' => '',
-                ],
-                [
-                    'title' => 'Action',
-                    'width' => '160',
-                ],
-            ],
-            'body' => [
-                [
-                    'title' => 'name',
-                ],
-                [
-                    'title' => 'detail',
-                ],
-            ]
-        ];
-        $this->form = [
+        $this->middleware("permission:$this->title_permission-listar|$this->title_permission-criar|$this->title_permission-editar|$this->title_permission-deletar", ['only' => ['index', 'show']]);
+        $this->middleware("permission:$this->title_permission-criar", ['only' => ['create', 'store']]);
+        $this->middleware("permission:$this->title_permission-editar", ['only' => ['edit', 'update']]);
+        $this->middleware("permission:$this->title_permission-deletar", ['only' => ['destroy']]);
+        $this->inputs_forms = [
             [
                 'title' => 'Name',
                 'type' => 'text',
@@ -102,13 +73,37 @@ class ProductController extends Controller
         $breadcrumbs = $this->breadcrumbs;
         $sections = ["crud.index" => ['data' => [],]];
         $title = $this->title;
-        $titlepage = ucfirst($this->title);
+        $titlepage = $this->title;
         $datapage = Product::all();
         $route = $this->title_route;
         $can = $this->title_can;
         $title = $this->title;
-        $header_table = $this->table['header'];
-        $body_table = $this->table['body'];
+        $header_table = [
+            [
+                'title' => 'No',
+                'width' => '',
+            ],
+            [
+                'title' => 'Name',
+                'width' => '',
+            ],
+            [
+                'title' => 'Details',
+                'width' => '',
+            ],
+            [
+                'title' => 'Action',
+                'width' => '160',
+            ],
+        ];
+        $body_table = [
+            [
+                'title' => 'name',
+            ],
+            [
+                'title' => 'detail',
+            ],
+        ];
         return view('admin.page', compact(
             'datapage',
             'title',
@@ -138,7 +133,7 @@ class ProductController extends Controller
         $can = $this->title_can;
         $title = $this->title;
         $titlepage = $this->title;
-        $form_create = $this->form;
+        $form_create = $this->inputs_forms;
         $sidebaradmin = SideBar::all();
         $breadcrumbs = $this->breadcrumbs;
         $sections = ["crud.create" => ['data' => [],]];
@@ -189,7 +184,7 @@ class ProductController extends Controller
         $can = $this->title_can;
         $title = $this->title;
         $titlepage = $this->title;
-        $form_show = $this->form;
+        $form_show = $this->inputs_forms;
         $sidebaradmin = SideBar::all();
         $breadcrumbs = $this->breadcrumbs;
         $sections = ["crud.show" => ['data' => [],]];
@@ -223,9 +218,9 @@ class ProductController extends Controller
         $can = $this->title_can;
         $title = $this->title;
         $titlepage = $this->title;
-        $form_edit = $this->form;
+        $form_edit = $this->inputs_forms;
         $sidebaradmin = SideBar::all();
-        $breadcrumbs = $this->breadcrumbs;
+        $breadcrumbs = [];
         $sections = ["crud.edit" => ['data' => [],]];
         return view('admin.page', compact(
             'datapage',
@@ -257,7 +252,7 @@ class ProductController extends Controller
         $product->update($request->all());
 
         return redirect()->route("$this->title_route.index")
-            ->with('success', "Registro atualizado com sucesso.");
+            ->with('warning', "Registro atualizado com sucesso.");
     }
 
     /**
@@ -271,6 +266,6 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route("$this->title_route.index")
-            ->with('success', "Registro excluido com sucesso");
+            ->with('warning', "Registro excluido com sucesso");
     }
 }

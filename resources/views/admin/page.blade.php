@@ -1,7 +1,5 @@
 @extends('layouts.admin')
-
 @section('content')
-@include('admin.components.flash-message')
     <section class="section dashboard">
         <div class="row">
             @foreach ($sections as $key => $item)

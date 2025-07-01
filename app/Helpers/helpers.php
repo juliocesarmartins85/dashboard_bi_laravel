@@ -6,29 +6,15 @@ use App\Models\Log as ModelsLog;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\RouterBoard;
-use \RouterOS\Client;
 
 class WebHelper
 {
-    protected $cliente;
+
     /**
      *
      *
      */
-    public function __construct()
-    {
-
-        //try {
-        //    $this->cliente = new Client([
-        //        'host' => RouterBoard::all()->first()->host,
-        //        'user' => RouterBoard::all()->first()->user,
-        //        'pass' => RouterBoard::all()->first()->pass,
-        //        'port' => 87/* intval(RouterBoard::all()->first()->port) */,
-        //    ]);
-        //} catch (\Exception $e) {
-        //    Log::info($e->getMessage());
-        //}
-    }
+    public function __construct() {}
     /**
      *
      *
@@ -54,10 +40,10 @@ class WebHelper
     public static function apiHotspotPost(String $url, String $ip, String $port, array $body)
     {
         try {
-            return  Http::/* timeout(-1)-> */withOptions([
-                /* 'debug' => fopen('php://stderr', 'w'), */
-                'verify' => false,
+            return  Http::timeout(-1)->withOptions([
+                'debug' => fopen('php://stderr', 'w'),
             ])->post("https://{$ip}:{$port}/cgi-bin/api/v3/{$url}", [
+                'verify' => false,
                 "data" => $body
             ])['data'];
         } catch (\Exception $e) {
@@ -68,15 +54,77 @@ class WebHelper
      *
      *
      */
-    public function mkt_query(String $query)
+    public static function apiMacGet(String $mac)
     {
         try {
-            return $this->cliente->query($query)->read();
+            $res = Http::get('https://api.macvendors.com/' . urlencode($mac));
+            if ($res->status() == 200) {
+                return $res->body();
+            } else {
+                return 'n/a';
+            }
         } catch (\Exception $e) {
             return Log::info($e->getMessage());
         }
     }
     /**
+     *
+     *
+     */
+    public static function apiMkGet(int $id, String $url)
+    {
+        $rb =  RouterBoard::findOrFail($id);
+        $host = $rb->host;
+        $user = $rb->user;
+        $pass = $rb->pass;
+        $port = $rb->port;
+        try {
+            $res = Http::timeout(-1)->withOptions([
+                'debug' => fopen('php://stderr', 'w'),
+            ])->withBasicAuth($user, $pass)->get("http://$host:$port/rest/{$url}");
+            return json_decode(mb_convert_encoding($res, "UTF-8", "auto"));
+        } catch (\Exception $e) {
+            return Log::info($e->getMessage());
+        }
+    }
+    /**
+     *
+     *
+     */
+    public static function apiMkDelete(int $id, String $url, String $vlr)
+    {
+        $rb =  RouterBoard::findOrFail($id);
+        $host = $rb->host;
+        $user = $rb->user;
+        $pass = $rb->pass;
+        $port = $rb->port;
+        try {
+            return Http::timeout(-1)->withOptions([
+                'debug' => fopen('php://stderr', 'w'),
+            ])->withBasicAuth($user, $pass)->delete("http://$host:$port/rest/{$url}/{$vlr}");
+        } catch (\Exception $e) {
+            return Log::info($e->getMessage());
+        }
+    }
+    /**
+     *
+     *
+     */
+    public static function apiMkPost(int $id, String $url, array $body)
+    {
+        $rb =  RouterBoard::findOrFail($id);
+        $host = $rb->host;
+        $user = $rb->user;
+        $pass = $rb->pass;
+        $port = $rb->port;
+        try {
+            return Http::withBasicAuth($user, $pass)->post("http://$host:$port/rest/{$url}", $body);
+        } catch (\Exception $e) {
+            return Log::info($e->getMessage());
+        }
+    }
+    /**
+     *
      *
      */
     public static function apiHotspotGetHeader(String $url, String $ip, String $port, array $head)
@@ -84,7 +132,7 @@ class WebHelper
         try {
             return Http::timeout(-1)->withOptions([
                 'verify' => false,
-                /* 'debug' => fopen('php://stderr', 'w'), */
+                'debug' => fopen('php://stderr', 'w'),
             ])->withHeaders($head)->get("https://{$ip}:{$port}/cgi-bin/api/v3/{$url}")['data'];
         } catch (\Exception $e) {
             Log::info($e->getMessage());
@@ -117,20 +165,19 @@ class WebHelper
     /**
      *
      */
-    //public static function logdata(String $tipo, String $nivel, String $page, String $mensagem, String $device)
-    //{
-    //    try {
-    //        $log = new ModelsLog();
-    //        $log->tipo = $tipo;
-    //        $log->nivel = $nivel;
-    //        $log->page = $page;
-    //        $log->mensagem = $mensagem;
-    //        $log->device = $device;
-    //        $log->save();
-    //    } catch (\Exception $e) {
-    //        Log::info($e->getMessage());
-    //    }
-    //}
+    public static function logdata(String $tipo, String $nivel, String $page, String $mensagem)
+    {
+        try {
+            $log = new ModelsLog();
+            $log->tipo = $tipo;
+            $log->nivel = $nivel;
+            $log->page = $page;
+            $log->mensagem = $mensagem;
+            $log->save();
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+        }
+    }
     /**
      *
      */
@@ -151,35 +198,26 @@ class WebHelper
         return false;
     }
 
-    /**
-     *
-     */
-    public static function string_url($str)
+    public static function seo_friendly_url($string): String
     {
-        // Remove acentos
-        $str = preg_replace('/[áàãâä]/u', 'a', $str);
-        $str = preg_replace('/[ÁÀÃÂÄ]/u', 'A', $str);
-        $str = preg_replace('/[éèêë]/u', 'e', $str);
-        $str = preg_replace('/[ÉÈÊË]/u', 'E', $str);
-        $str = preg_replace('/[íìîï]/u', 'i', $str);
-        $str = preg_replace('/[ÍÌÎÏ]/u', 'I', $str);
-        $str = preg_replace('/[óòõôö]/u', 'o', $str);
-        $str = preg_replace('/[ÓÒÕÔÖ]/u', 'O', $str);
-        $str = preg_replace('/[úùûü]/u', 'u', $str);
-        $str = preg_replace('/[ÚÙÛÜ]/u', 'U', $str);
-        $str = preg_replace('/[ç]/u', 'c', $str);
-        $str = preg_replace('/[Ç]/u', 'C', $str);
-        $str = preg_replace('/[^a-zA-Z0-9\s]/', '', $str); // Remove caracteres especiais
-
-        // Substitui espaços por hifens
-        $str = preg_replace('/\s+/', '-', $str);
-
-        // Converte para minúsculas
-        $str = strtolower($str);
-
-        return $str;
+        $string = str_replace(array('[\', \']'), '', $string);
+        $string = preg_replace('/\[.*\]/U', '', $string);
+        $string = preg_replace('/&(amp;)?#?[a-z0-9]+;/i', '-', $string);
+        $string = htmlentities($string, ENT_COMPAT, 'utf-8');
+        $string = preg_replace('/&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);/i', '\\1', $string);
+        $string = preg_replace(array('/[^a-z0-9]/i', '/[-]+/'), '-', $string);
+        return strtolower(trim($string, '-'));
     }
 
+    public static function is_json_string($json_str): bool
+    {
+        json_decode($json_str);
+        return json_last_error() === JSON_ERROR_NONE;
+        //return !preg_match(
+        //    '/[^,:{}\\[\\]0-9.\\-+Eaeflnr-u \\n\\r\    ]/',
+        //    preg_replace('/"(\\.|[^"\\\\])*"/', '', $json_str)
+        //);
+    }
     /**
      *
      */
@@ -207,7 +245,8 @@ class WebHelper
             'funcao' => 'função',
             'banner' => 'banner',
             'product' => 'produto',
-            'usuario' => 'usuario',
+            'usuario' => 'administradores',
+            'profileusers' => 'usuario',
         );
 
         // Loop através do array de palavras de substituição
@@ -218,26 +257,10 @@ class WebHelper
 
         return ucfirst(explode('-', $str)[0]) . ' ' . ucfirst(explode('-', $str)[1]);
     }
-
-    public static function seo_friendly_url($string): String
-    {
-        $string = str_replace(array('[\', \']'), '', $string);
-        $string = preg_replace('/\[.*\]/U', '', $string);
-        $string = preg_replace('/&(amp;)?#?[a-z0-9]+;/i', '-', $string);
-        $string = htmlentities($string, ENT_COMPAT, 'utf-8');
-        $string = preg_replace('/&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);/i', '\\1', $string);
-        $string = preg_replace(array('/[^a-z0-9]/i', '/[-]+/'), '-', $string);
-        return strtolower(trim($string, '-'));
-    }
-
-    public static function is_json_string($json_str): bool
-    {
-        return !preg_match(
-            '/[^,:{}\\[\\]0-9.\\-+Eaeflnr-u \\n\\r\    ]/',
-            preg_replace('/"(\\.|[^"\\\\])*"/', '', $json_str)
-        );
-    }
-
+    /**
+     * Display a listing of the resource.
+     *
+     */
     public static function getUserIpAddr()
     {
         $ipaddress = '';
@@ -257,7 +280,10 @@ class WebHelper
             $ipaddress = 'UNKNOWN';
         return $ipaddress;
     }
-
+    /**
+     * Display a listing of the resource.
+     *
+     */
     public static function getBrowserInfo()
     {
         $browserInfo = array('user_agent' => '', 'browser' => '', 'browser_version' => '', 'os_platform' => '', 'pattern' => '', 'device' => '');
@@ -356,107 +382,33 @@ class WebHelper
         );
     }
 
-    public static function numeroParaColocacaoTextual($numero)
+    public static function nomeBrasileiroValido($nome)
     {
-        // Array com os ordinais para 1-19
-        $unitarios = [
-            1 => 'primeiro',
-            2 => 'segundo',
-            3 => 'terceiro',
-            4 => 'quarto',
-            5 => 'quinto',
-            6 => 'sexto',
-            7 => 'sétimo',
-            8 => 'oitavo',
-            9 => 'nono',
-            10 => 'décimo',
-            11 => 'décimo primeiro',
-            12 => 'décimo segundo',
-            13 => 'décimo terceiro',
-            14 => 'décimo quarto',
-            15 => 'décimo quinto',
-            16 => 'décimo sexto',
-            17 => 'décimo sétimo',
-            18 => 'décimo oitavo',
-            19 => 'décimo nono'
-        ];
+        // Remove espaços extras
+        $nome = trim($nome);
 
-        // Array com os múltiplos de 10 (para dezenas)
-        $dezenas = [
-            20 => 'vigésimo',
-            30 => 'trigésimo',
-            40 => 'quadragésimo',
-            50 => 'quinquagésimo',
-            60 => 'sexagésimo',
-            70 => 'septuagésimo',
-            80 => 'octogésimo',
-            90 => 'nonagésimo'
-        ];
-
-        // Array com os múltiplos de 100 (para centenas)
-        $centenas = [
-            100 => 'centésimo',
-            200 => 'ducentésimo',
-            300 => 'tricentésimo',
-            400 => 'quadrigentésimo',
-            500 => 'quingentésimo',
-            600 => 'sexcentésimo',
-            700 => 'septingentésimo',
-            800 => 'octingentésimo',
-            900 => 'noningentésimo'
-        ];
-
-        // Caso o número esteja entre 1 e 19
-        if ($numero <= 19) {
-            return $unitarios[$numero];
+        // Verifica se tem ao menos duas palavras (nome e sobrenome)
+        if (str_word_count($nome, 0) < 2) {
+            return false;
         }
 
-        // Caso o número seja maior que 19
-        $ordinal = '';
+        // Verifica se contém apenas letras (inclusive acentuadas) e espaços
+        if (!preg_match('/^[A-Za-zÀ-ÖØ-öø-ÿ ]+$/u', $nome)) {
+            return false;
+        }
 
-        // Verifica dezenas
-        if ($numero >= 20 && $numero < 100) {
-            $dezena = floor($numero / 10) * 10; // Obtemos a dezena
-            $resto = $numero % 10; // O restante que vem após a dezena
+        // Verifica cada palavra individualmente
+        $palavras = explode(' ', $nome);
+        foreach ($palavras as $palavra) {
+            if ($palavra === '') continue; // ignora espaços duplicados
+            $tam = mb_strlen($palavra, 'UTF-8');
 
-            $ordinal = $dezenas[$dezena]; // A parte das dezenas
-            if ($resto > 0) {
-                // Se houver unidades, adiciona
-                $ordinal .= ' ' . $unitarios[$resto];
+            // Mínimo de 3 e máximo definido (padrão: 30)
+            if ($tam < 3 || $tam > 30) {
+                return false;
             }
         }
 
-        // Caso o número seja maior que 100
-        if ($numero >= 100 && $numero < 1000) {
-            $centena = floor($numero / 100) * 100; // Obtemos a centena
-            $resto = $numero % 100; // O restante após as centenas
-
-            $ordinal = $centenas[$centena]; // A parte das centenas
-            if ($resto > 0) {
-                $ordinal .= ' e ' . self::numeroParaColocacaoTextual($resto); // Chama a função recursivamente para o restante
-            }
-        }
-
-        return $ordinal;
+        return true;
     }
-
-    function gerarUrlAmigavel($string) {
-        // Converte para minúsculas
-        $string = strtolower($string);
-
-        // Substitui espaços por hífens
-        $string = str_replace(' ', '-', $string);
-
-        // Remove caracteres especiais, mantendo apenas letras, números e hífens
-        $string = preg_replace('/[^a-z0-9-]/', '', $string);
-
-        // Remove múltiplos hífens seguidos
-        $string = preg_replace('/-+/', '-', $string);
-
-        // Remove hífen no começo e no final da string
-        $string = trim($string, '-');
-
-        return $string;
-    }
-
 }

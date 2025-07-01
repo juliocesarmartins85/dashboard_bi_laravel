@@ -42,7 +42,7 @@ class FileController extends Controller
 
         $fileName = time() . '.' . $request->file->extension();
 
-        $request->file->move(public_path('uploads'), $fileName);
+        $request->file->move(public_path('fotosperfil'), $fileName);
 
         $item = User::find(Auth::user()->id);
         $item->foto = $fileName;
