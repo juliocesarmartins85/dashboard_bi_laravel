@@ -28,7 +28,7 @@ cp .env.example .env
 
 Atualize as variáveis de ambiente do arquivo .env
 ```dosini
-APP_NAME="Especializa Ti"
+APP_NAME="Dashboard"
 APP_URL=http://localhost:8989
 
 DB_CONNECTION=mysql
@@ -71,6 +71,30 @@ Gerar a key do projeto Laravel
 php artisan key:generate
 ```
 
+Gerar Migration,Controllers e Models
+```sh
+php artisan make:model ApiCrm -mcrsf
+php artisan make:model Banner -mcrsf
+php artisan make:model Cidades -mcrsf
+php artisan make:model ContatoCrm -mcrsf
+php artisan make:model Faq -mcrsf
+php artisan make:model Footer -mcrsf
+php artisan make:model Links -mcrsf
+php artisan make:model MgaCaracteristica -mcrsf
+php artisan make:model MgaSegmetos -mcrsf
+php artisan make:model PricingGestaoFrotas -mcrsf
+php artisan make:model RastreadorSegmetos -mcrsf
+php artisan make:model Segmento -mcrsf
+php artisan make:model SegmentoLink -mcrsf
+php artisan make:model SegmentoPage -mcrsf
+php artisan make:model ServiceCity -mcrsf
+php artisan make:model ServicoGestaoFrota -mcrsf
+php artisan make:model Site -mcrsf
+php artisan make:model Tag -mcrsf
+php artisan make:model User -mcrsf
+php artisan make:model Whyus -mcrsf
+php artisan make:model RecursosSistemas -mcrsf
+```
 
 Acessar o projeto
 [http://localhost:8989](http://localhost:8989)
