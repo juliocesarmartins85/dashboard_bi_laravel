@@ -60,7 +60,7 @@
         </div>
         <div class="card-body">
             <div class="my-3">
-                <table class="dataenquete table table-striped table-hover">
+                <table class="dataTableAdmin table table-striped table-hover">
                     <thead>
                         <tr>
                             @foreach ($header_table as $hdr)
@@ -103,7 +103,7 @@
         </div>
         <div class="card-body">
             <div class="my-3">
-                <table class="dataenquete table table-striped table-hover">
+                <table class="dataTableAdmin table table-striped table-hover">
                     <thead>
                         <tr>
                             @foreach ($header_table_ativos as $hdr)
@@ -146,7 +146,7 @@
         </div>
         <div class="card-body">
             <div class="my-3">
-                <table class="dataenquete table table-striped table-hover">
+                <table class="dataTableAdmin table table-striped table-hover">
                     <thead>
                         <tr>
                             <th scope="col">Mensagem</th>
@@ -175,7 +175,7 @@
         </div>
         <div class="card-body">
             <div class="my-3">
-                <table class="dataenquete table table-striped table-hover">
+                <table class="dataTableAdmin table table-striped table-hover">
                     <thead>
                         <tr>
                             <th scope="col">IP</th>
@@ -204,7 +204,7 @@
         </div>
         <div class="card-body">
             <div class="my-3">
-                <table class="dataenquete table table-striped table-hover">
+                <table class="dataTableAdmin table table-striped table-hover">
                     <thead>
                         <tr>
                             <th class="text-capitalize" scope="col">#</th>

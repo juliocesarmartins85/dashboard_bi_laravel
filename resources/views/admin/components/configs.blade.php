@@ -5,7 +5,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Pontos de Acesso</h5>
                     <!-- Default Table -->
-                    <table class="dataenquete table table-striped table-hover">
+                    <table class="dataTableAdmin table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th class="text-capitalize" scope="col">#</th>
@@ -60,7 +60,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Router Board</h5>
                     <!-- Default Table -->
-                    <table class="dataenquete table table-striped table-hover">
+                    <table class="dataTableAdmin table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th class="text-capitalize" scope="col">#</th>
@@ -104,7 +104,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Liberar Acesso Usuário</h5>
                     <!-- Default Table -->
-                    <table class="dataenquete table table-striped table-hover">
+                    <table class="dataTableAdmin table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th class="text-capitalize" scope="col">#</th>

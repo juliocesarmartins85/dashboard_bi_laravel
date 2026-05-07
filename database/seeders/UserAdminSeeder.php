@@ -24,11 +24,25 @@ class UserAdminSeeder extends Seeder
                 'password' => bcrypt('tagima19856')
             ],
             [
-                'name' => 'BRUNO PARAVIZO BARÃO',
-                'email' => 'suporte@fonelight.com.br',
+                'name' => 'Thomas',
+                'email' => 'thomas@fonelight.com.br',
                 'funcao' => 'developer',
                 'funcaosis' => 'developer',
-                'password' => bcrypt('Fonelight@135')
+                'password' => bcrypt('fonelight135')
+            ],
+            [
+                'name' => 'Api',
+                'email' => 'api@api.com.br',
+                'funcao' => 'developer',
+                'funcaosis' => 'developer',
+                'password' => bcrypt('fonelight135')
+            ],
+            [
+                'name' => 'Aspira',
+                'email' => 'aspira@onotecnologia.com.br',
+                'funcao' => 'developer',
+                'funcaosis' => 'developer',
+                'password' => bcrypt('fonelight135')
             ],
         ];
 

@@ -31,7 +31,7 @@
             <div class="card-header">Registros de log</div>
             <div class="card-body">
                 <div class="my-5">
-                    <table class="dataenquete table table-striped table-hover {{-- dt-responsive --}}">
+                    <table class="dataTableAdmin table table-striped table-hover {{-- dt-responsive --}}">
                         <thead>
                             <tr>
                                 <th scope="col">Usuário/Pagina</th>

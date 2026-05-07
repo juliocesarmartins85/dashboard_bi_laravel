@@ -15,9 +15,9 @@ class SiteSeeder extends Seeder
     {
         DB::table('sites')->insert([
             'url' => '',
-            'name' => 'Prefeitura Bom Sucesso',
+            'name' => 'Prefeitura São Lourenço',
             'author' => 'Julio Cesar Martins',
-            'description' => 'Sistema acesso de wifi para prefeitura de bom sucesso',
+            'description' => '',
             'endereco' => '',
             'telefone' => '',
             'locale' => 'pt-br',

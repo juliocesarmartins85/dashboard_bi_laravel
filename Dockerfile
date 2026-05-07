@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.2.9-fpm
 
 ARG user=julio
 ARG uid=1000

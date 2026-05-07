@@ -22,7 +22,7 @@
             </div>
             <div class="card-body">
                 <div class="my-3">
-                    <table class="dataenquete table table-striped table-hover {{-- dt-responsive --}}">
+                    <table class="dataTableAdmin table table-hover align-middle dt-responsive">
                         <thead>
                             <tr>
                                 <th width="20px">No</th>

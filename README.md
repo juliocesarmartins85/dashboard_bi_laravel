@@ -25,26 +25,37 @@ Crie o Arquivo .env
 cp .env.example .env
 ```
 
-
 Atualize as variáveis de ambiente do arquivo .env
-```dosini
-APP_NAME="Dashboard"
-APP_URL=http://localhost:8989
+```ini
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=base64:6r0+SEauoUgPVxLUe88ix21EwuKHf/hrozoQYh7edsg=
+APP_DEBUG=false
+https://onobus.onotecnologia.com.br/
 
-DB_CONNECTION=mysql
-DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=laravel
-DB_USERNAME=root
-DB_PASSWORD=root
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=en_US
 
-CACHE_DRIVER=redis
-QUEUE_CONNECTION=redis
-SESSION_DRIVER=redis
+APP_MAINTENANCE_DRIVER=file
+# APP_MAINTENANCE_STORE=database
 
-REDIS_HOST=redis
-REDIS_PASSWORD=null
-REDIS_PORT=6379
+# PHP_CLI_SERVER_WORKERS=4
+
+BCRYPT_ROUNDS=12
+
+LOG_CHANNEL=stack
+LOG_STACK=single
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+
+DB_CONNECTION=sqlite
+#DB_CONNECTION=pgsql
+#DB_HOST=banco.satlight.com.br
+#DB_PORT=5432
+#DB_DATABASE=websites
+#DB_USERNAME=websites
+#DB_PASSWORD=E4P4Ii7jZ5S9qq
 ```
 
 
@@ -65,7 +76,15 @@ Instalar as dependências do projeto
 composer install
 ```
 
-
+Limpar Conatiners
+```sh
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+docker rmi $(docker images -q) --force
+docker volume rm $(docker volume ls -q)
+docker network prune -f
+docker builder prune -a -f
+```
 Gerar a key do projeto Laravel
 ```sh
 php artisan key:generate
@@ -73,28 +92,106 @@ php artisan key:generate
 
 Gerar Migration,Controllers e Models
 ```sh
-php artisan make:model ApiCrm -mcrsf
-php artisan make:model Banner -mcrsf
-php artisan make:model Cidades -mcrsf
-php artisan make:model ContatoCrm -mcrsf
-php artisan make:model Faq -mcrsf
-php artisan make:model Footer -mcrsf
-php artisan make:model Links -mcrsf
-php artisan make:model MgaCaracteristica -mcrsf
-php artisan make:model MgaSegmetos -mcrsf
-php artisan make:model PricingGestaoFrotas -mcrsf
-php artisan make:model RastreadorSegmetos -mcrsf
-php artisan make:model Segmento -mcrsf
-php artisan make:model SegmentoLink -mcrsf
-php artisan make:model SegmentoPage -mcrsf
-php artisan make:model ServiceCity -mcrsf
-php artisan make:model ServicoGestaoFrota -mcrsf
-php artisan make:model Site -mcrsf
-php artisan make:model Tag -mcrsf
+php artisan make:model Api -mcrsf
+php artisan make:model Driver -mcrsf
+php artisan make:model DriverAssignments -mcrsf
+php artisan make:model File -mcrsf
+php artisan make:model Log -mcrsf
+php artisan make:model Neighborhood -mcrsf
+php artisan make:model Product -mcrsf
+php artisan make:model Role -mcrsf
+php artisan make:model Route -mcrsf
+php artisan make:model RouteStreet -mcrsf
+php artisan make:model SideBar -mcrsf
+php artisan make:model Stop -mcrsf
+php artisan make:model StopTimes -mcrsf
+php artisan make:model Street -mcrsf
+php artisan make:model Trip -mcrsf
 php artisan make:model User -mcrsf
-php artisan make:model Whyus -mcrsf
-php artisan make:model RecursosSistemas -mcrsf
+php artisan make:model Vehicle -mcrsf
 ```
 
 Acessar o projeto
-[http://localhost:8989](http://localhost:8989)
+[http://192.168.0.253:8989](http://192.168.0.253:8989)
+
+```sh
+
+
+
+php artisan make:model User -mcrsf
+php artisan make:seeder PermissionTableSeeder
+php artisan db:seed --class=PermissionTableSeeder
+php artisan make:seeder CreateAdminUserSeeder
+php artisan db:seed --class=CreateAdminUserSeeder
+php artisan make:controller PostHomeController --resource
+
+php artisan db:wipe
+php artisan migrate --seed
+php artisan db:seed --class=CreateAdminUserSeeder
+
+
+php artisan install:api
+composer require spatie/laravel-permission
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+npm install bootstrap-icons --save-dev
+composer require laravel/ui
+php artisan ui bootstrap --auth
+npm install && npm run dev
+```
+
+resources\sass\app.scss
+```php
+/* Fonts */
+@import url('https://fonts.bunny.net/css?family=Nunito');
+
+/* Variables */
+@import 'variables';
+
+/* Bootstrap */
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+```
+
+routes/api.php
+```php 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+  
+use App\Http\Controllers\API\RegisterController;
+use App\Http\Controllers\API\ProductController;
+   
+Route::controller(RegisterController::class)->group(function(){
+    Route::post('register', 'register');
+    Route::post('login', 'login');
+});
+         
+Route::middleware('auth:sanctum')->group( function () {
+    Route::resource('products', ProductController::class);
+});
+```
+
+bootstrap/app.php
+
+```php
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
+
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class
+        ]);
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
+    })->create();
+```

@@ -4,7 +4,7 @@
             <div class="card-header">Usuários Cadastrados</div>
             <div class="card-body">
                 <div class="my-5">
-                    <table class="dataenquete table table-striped table-hover {{-- dt-responsive --}}">
+                    <table class="dataTableAdmin table table-striped table-hover {{-- dt-responsive --}}">
                         <thead>
                             <tr>
                                 @foreach ($data['profile_header'] as $ph)
@@ -77,7 +77,7 @@
             <div class="card-header">Historico equipamentos</div>
             <div class="card-body">
                 <div class="my-5">
-                    <table class="dataenquete table table-striped table-hover {{-- dt-responsive --}}">
+                    <table class="dataTableAdmin table table-striped table-hover {{-- dt-responsive --}}">
                         <thead>
                             <tr>
                                 @foreach ($data['device_header'] as $ph)
@@ -109,7 +109,7 @@
             <div class="card-header">Usuarios Blacklist</div>
             <div class="card-body">
                 <div class="my-5">
-                    <table class="dataenquete table table-striped table-hover {{-- dt-responsive --}}">
+                    <table class="dataTableAdmin table table-striped table-hover {{-- dt-responsive --}}">
                         <thead>
                             <tr>
                                 @foreach ($data['blacklist_header'] as $ph)

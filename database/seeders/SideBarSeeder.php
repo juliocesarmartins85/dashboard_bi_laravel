@@ -29,45 +29,9 @@ class SideBarSeeder extends Seeder
                 'updated_at' => date('Y-m-d H:i:s')
             ],
             [
-                'nome' => 'Enquete',
-                'icon' => 'bi bi-person-lines-fill',
-                'url' => '/enquetes',
-                'nvl' => 1,
-                'ativo' => true,
-                'ancent' => '',
-                'descent' => '',
-                'drop' => false,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
-                'nome' => 'Perguntas',
-                'icon' => 'bi bi-question-square-fill',
-                'url' => '/perguntas',
-                'nvl' => 1,
-                'ativo' => true,
-                'ancent' => '',
-                'descent' => '',
-                'drop' => false,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
-                'nome' => 'RouterBoard',
-                'icon' => 'bi bi-router-fill',
-                'url' => '/routerboard',
-                'nvl' => 1,
-                'ativo' => true,
-                'ancent' => '',
-                'descent' => '',
-                'drop' => false,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
                 'nome' => 'Administradores',
                 'icon' => 'bi bi-person-badge',
-                'url' => '/user',
+                'url' => '/users',
                 'nvl' => 1,
                 'ativo' => true,
                 'ancent' => '',
@@ -100,6 +64,66 @@ class SideBarSeeder extends Seeder
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
+                        [
+                'nome' => 'Motoristas',
+                'icon' => 'bi bi-person-badge-fill',
+                'url' => '/drivers',
+                'nvl' => 1,
+                'ativo' => true,
+                'ancent' => '',
+                'descent' => '',
+                'drop' => false,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ],
+            [
+                'nome' => 'Veículos',
+                'icon' => 'bi bi-bus-front-fill',
+                'url' => '/vehicles',
+                'nvl' => 1,
+                'ativo' => true,
+                'ancent' => '',
+                'descent' => '',
+                'drop' => false,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ],
+            [
+                'nome' => 'Linhas de Ônibus',
+                'icon' => 'bi bi-signpost-split-fill',
+                'url' => '/routes',
+                'nvl' => 1,
+                'ativo' => true,
+                'ancent' => '',
+                'descent' => '',
+                'drop' => false,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ],
+            [
+                'nome' => 'Pontos de Parada',
+                'icon' => 'bi bi-geo-alt-fill',
+                'url' => '/stops',
+                'nvl' => 1,
+                'ativo' => true,
+                'ancent' => '',
+                'descent' => '',
+                'drop' => false,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ],
+            [
+                'nome' => 'Ruas',
+                'icon' => 'bi bi-map-fill',
+                'url' => '/streets',
+                'nvl' => 1,
+                'ativo' => true,
+                'ancent' => '',
+                'descent' => '',
+                'drop' => false,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ],
             [
                 'nome' => 'Dados Sistemas',
                 'icon' => 'bi bi-file',
@@ -112,54 +136,6 @@ class SideBarSeeder extends Seeder
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
-            [
-                'nome' => 'Bairros',
-                'icon' => 'bi bi-map',
-                'url' => '/enderecos',
-                'nvl' => 1,
-                'ativo' => true,
-                'ancent' => '',
-                'descent' => '',
-                'drop' => false,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
-                'nome' => 'Hotspots',
-                'icon' => 'bi bi-router',
-                'url' => '/hotspot',
-                'nvl' => 1,
-                'ativo' => true,
-                'ancent' => '',
-                'descent' => '',
-                'drop' => false,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
-                'nome' => 'Logs',
-                'icon' => 'bi bi-file-earmark-code-fill',
-                'url' => '/logs',
-                'nvl' => 1,
-                'ativo' => true,
-                'ancent' => '',
-                'descent' => '',
-                'drop' => false,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
-                'nome' => 'Blacklist',
-                'icon' => 'bi bi-x-octagon',
-                'url' => '/blacklists',
-                'nvl' => 1,
-                'ativo' => true,
-                'ancent' => '',
-                'descent' => '',
-                'drop' => false,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ]
         ]);
     }
 }

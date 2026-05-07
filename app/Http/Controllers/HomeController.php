@@ -2,31 +2,24 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Helpers\WebHelper;
+use App\Models\Breadcrumbs;
+use App\Models\Driver;
+use App\Models\Route;
 use Illuminate\View\View;
-use App\Models\Hotspot;
-use App\Models\SideBar;
 use Illuminate\Http\Request;
-use App\Models\Blacklist;
-use App\Models\DeviceHistory;
-use App\Models\Enquete;
-use App\Models\Perguntas;
-use App\Models\ProfileUser;
-use App\Models\Respostas;
-use DateTime;
-use Illuminate\Support\Facades\Http;
+use App\Models\SideBar;
+use App\Models\Stop;
+use App\Models\Street;
+use App\Models\Vehicle;
+use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
-    protected $responsestatusclients;
-    protected $cliente;
-    protected $system_status;
-    protected $resource;
-    protected $totalUser;
-    protected $totalAtivos;
-    protected $acesso_user;
-    protected $log_rb;
-
     /**
      * Create a new controller instance.
      *
@@ -35,63 +28,6 @@ class HomeController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-
-        try {
-            foreach (Hotspot::all() as $key => $value) {
-                $token =  Http::post("http://{$value->host}:{$value->port}/cgi-bin/api/v3/system/login", [
-                    "data" => [
-                        "username" => $value->user,
-                        "password" => $value->pass
-                    ]
-                ])['data'];
-                Hotspot::findOrFail($value->id)->update(['token' => $token["Token"]]);
-                $this->system_status[$value->id] =  Http::timeout(10)->withHeaders(["Authorization" => "Token {$token['Token']}"])->get("http://{$value->host}:{$value->port}/cgi-bin/api/v3/system/status")['data'];
-            }
-        } catch (\Exception $e) {
-            Log::info($e->getMessage());
-        }
-
-        try {
-            foreach (Enquete::all() as $key_enqt => $enqt) {
-                $dataInicial = new DateTime(DateTime::createFromFormat('Y-m-d H:i', $enqt->dtinicio)->format("Y-m-d H:i"));
-                $dataFinal = new DateTime(DateTime::createFromFormat('Y-m-d H:i', $enqt->dtfinal)->format("Y-m-d H:i"));
-                $dataAtual = new DateTime();
-
-                if ($dataAtual < $dataInicial) {
-                    //echo "O intervalo ainda não começou.";
-                    Enquete::where('id', $enqt->id)->update(['status' => '0']);
-                } elseif ($dataAtual > $dataFinal) {
-                    //echo "O intervalo expirou.";
-                    Enquete::where('id', $enqt->id)->update(['status' => '0']);
-                } else {
-                    //echo "O intervalo está em andamento.";
-                    Enquete::where('id', $enqt->id)->update(['status' => '1']);
-                }
-            }
-        } catch (\Exception $e) {
-            Log::info($e->getMessage());
-        }
-
-        try {
-            foreach (Perguntas::all() as $key_prgt => $prgt) {
-                $dataInicial = new DateTime(DateTime::createFromFormat('Y-m-d H:i', $prgt->dtinicio)->format("Y-m-d H:i"));
-                $dataFinal = new DateTime(DateTime::createFromFormat('Y-m-d H:i', $prgt->dtfinal)->format("Y-m-d H:i"));
-                $dataAtual = new DateTime();
-
-                if ($dataAtual < $dataInicial) {
-                    //echo "O intervalo ainda não começou.";
-                    Perguntas::where('id', $prgt->id)->update(['status' => '0']);
-                } elseif ($dataAtual > $dataFinal) {
-                    //echo "O intervalo expirou.";
-                    Perguntas::where('id', $prgt->id)->update(['status' => '0']);
-                } else {
-                    //echo "O intervalo está em andamento.";
-                    Perguntas::where('id', $prgt->id)->update(['status' => '1']);
-                }
-            }
-        } catch (\Exception $e) {
-            Log::info($e->getMessage());
-        }
     }
 
     /**
@@ -101,264 +37,156 @@ class HomeController extends Controller
      */
     public function index(): View
     {
-        $array_grafico_enquete = [];
-        $array_grafico_pergunta = [];
-        $preguntas_bairro = [];
-        $title = 'dashboard';
-        $titlepage = ucfirst('dashboard');
+        WebHelper::updateVehicleMoovsec();
         $sidebaradmin = SideBar::all();
-        $breadcrumbs = [];
+        $drivers = Driver::all();
+        $vehicles = Vehicle::all();
+        $routes = Route::all();
+        $stops = Stop::all();
+        $streets = Street::all();
+        $breadcrumbs = Breadcrumbs::all();
 
-        try {
-            foreach (Perguntas::all() as $key => $prgt) {
-                $array_grafico_enquete[$prgt->id] = [];
-                foreach (explode('/', $prgt->options) as $key => $opt) {
-                    $array_grafico_enquete[$prgt->id][] = ['value' => Respostas::where('id_pergunta', $prgt->id)->where('resposta', $opt)->count(), 'name' => $opt];
-                }
-            }
-        } catch (\Throwable $e) {
-            Log::info($e->getMessage());
-        }
-
-        try {
-            foreach (Perguntas::all() as $key => $prgt) {
-                $array_grafico_pergunta[$prgt->id] = Perguntas::where('id', $prgt->id)->first()->question;
-            }
-        } catch (\Throwable $e) {
-            Log::info($e->getMessage());
-        }
-
-        try {
-            $users = ProfileUser::select(
-                "profile_users.id",
-                "profile_users.name",
-                "profile_users.email",
-                "profile_users.bairro",
-                "respostas.resposta as resposta_user",
-                "respostas.id_pergunta as resposta_id"
-            )->join("respostas", "respostas.id_profile_usuario", "=", "profile_users.id")
-                ->get()
-                ->toArray();
-        } catch (\Throwable $e) {
-            Log::info($e->getMessage());
-        }
-
-        try {
-            foreach (Perguntas::where('type', 'radio')->get() as $key_prgt => $prgt) {
-                foreach (explode('/', $prgt->options) as $key_opts => $opts) {
-                    // Inicialize a variável $counts dentro do loop externo
-                    $counts = []; // Agora a variável está definida e pode ser utilizada
-
-                    foreach ($users as $item) {
-                        if ($item["resposta_user"] === $opts && $item["resposta_id"] === $prgt->id) {
-                            $bairro = $item["bairro"];
-                            if (!isset($counts[$bairro])) {
-                                $counts[$bairro] = 0;
-                            }
-                            $counts[$bairro]++;
-                        }
-                    }
-                    $preguntas_bairro[] = [
-                        'question' => $prgt->question,
-                        'response' => $opts,
-                        'count' => $counts
-                    ];
-                }
-            }
-        } catch (\Throwable $e) {
-            Log::info($e->getMessage());
-        }
-
-        $profile_header = [
-            [
-                'title' => 'Id',
-                'col' => '',
-            ],
-            [
-                'title' => 'Nome',
-                'col' => '',
-            ],
-            [
-                'title' => 'Bairro',
-                'col' => '',
-            ],
-            [
-                'title' => 'Telefone',
-                'col' => '',
-            ],
-            [
-                'title' => 'Endereço Mac',
-                'col' => '',
-            ],
-        ];
-        $blacklist_header = [
-            [
-                'title' => 'Id',
-                'col' => '',
-            ],
-            [
-                'title' => 'Nome',
-                'col' => '',
-            ],
-            [
-                'title' => 'Bairro',
-                'col' => '',
-            ],
-            [
-                'title' => 'Telefone',
-                'col' => '',
-            ],
-            [
-                'title' => 'Endereço Mac',
-                'col' => '',
-            ],
-        ];
-        $device_header = [
-            [
-                'title' => 'Id Usuário',
-                'col' => '',
-            ],
-            [
-                'title' => 'Endereço Mac',
-                'col' => '',
-            ],
-            [
-                'title' => 'Nome Equipamento',
-                'col' => '',
-            ],
-            [
-                'title' => 'IP',
-                'col' => '',
-            ],
-            [
-                'title' => 'Servidor',
-                'col' => '',
-            ],
-            [
-                'title' => 'Hotspot',
-                'col' => '',
-            ]
-        ];
-        $sections = [
-            'cardHome' => [
-                'col' => '',
-                'data' => [
-                    'data_system' => json_decode(json_encode($this->system_status))
-                ]
-            ],
-            'graficoHome' => [
-                'col' => '6',
-                'data' => [
-                    'array_grafico_enquete' => $array_grafico_enquete,
-                    'array_grafico_pergunta' => $array_grafico_pergunta,
-                ]
-            ],
-            'dataTableHome' => [
-                'col' => '12',
-                'data' => [
-                    'profile_body' => ProfileUser::all(),
-                    'profile_header' => $profile_header,
-                    'device_body' => DeviceHistory::all(),
-                    'device_header' => $device_header,
-                    'blacklist_body' => Blacklist::all(),
-                    'blacklist_header' => $blacklist_header,
-                    'preguntas_bairro' => $preguntas_bairro,
-                ]
-            ]
-        ];
-
-        return view('admin.page', compact(
+        return view('admin.home', compact(
             'sidebaradmin',
             'breadcrumbs',
-            'titlepage',
-            'sections'
+            'drivers',
+            'vehicles',
+            'routes',
+            'stops',
+            'streets'
         ));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function updateVehicle(Request $request)
     {
-        //
+        $request->validate([
+            'route_id'   => 'required|exists:routes,id',
+            'vehicle_id' => 'required|exists:vehicles,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $route = Route::findOrFail($request->route_id);
+            $vehicle = Vehicle::findOrFail($request->vehicle_id);
+
+            // 1. Atualizar o Veículo (Vínculo direto)
+            $vehicle->update(['route_id' => $route->id]);
+
+            // 2. Buscar as paradas que batem com o nome da linha (Ex: "Linha 02")
+            $stops = Stop::where('linha', trim($route->short_name))->get();
+
+            if ($stops->isEmpty()) {
+                return redirect()->back()->with('error', "Nenhuma parada encontrada para '{$route->short_name}'");
+            }
+
+            // 3. Atualizar cada parada individualmente para forçar o banco a aceitar
+            foreach ($stops as $stop) {
+                $stop->vehicle_id = $vehicle->id;
+                $stop->route_id = $route->id;
+                $stop->save();
+            }
+
+            DB::commit();
+
+            return redirect()->back()->with('success', "Sucesso! " . $stops->count() . " paradas da {$route->short_name} vinculadas ao veículo {$vehicle->plate}.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // O getMessage() vai nos dizer se a coluna 'vehicle_id' ou 'route_id' realmente não existe
+            return redirect()->back()->with('error', "Erro ao gravar no banco: " . $e->getMessage());
+        }
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show()
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit()
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy()
-    {
-        //
-    }
-    /**
-     *
+     * Limpar cache laravel.
      *
      * @return \Illuminate\Http\Response
      */
-    public function clientsconnects(Request $request)
+    public function clear_cache()
     {
-        $simple_table = [];
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = [];
-        $titlepage = 'Dispositivos Conectados';
-        $hotspot = Hotspot::findOrFail($request->id);
-
         try {
-            $data_hotspot = Http::timeout(10)->withHeaders(["Authorization" => "Token {$hotspot->token}"])->get("http://{$hotspot->host}:{$hotspot->port}/cgi-bin/api/v3/system/status")['data'];
-        } catch (\Throwable $e) {
-            Log::info($e->getMessage());
-        }
+            // 1. Limpa caches de aplicação, views e caches antigos
+            Artisan::call('route:clear');
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+            Artisan::call('config:clear');
 
-        try {
-            foreach (json_decode(json_encode($this->system_status[$request->id]))->wireless->radios as $k => $v) {
-                $simple_table[$v->id] = Http::timeout(10)->withHeaders(["Authorization" => "Token {$hotspot->token}"])->get("http://{$hotspot->host}:{$hotspot->port}/cgi-bin/api/v3/interface/wireless/{$v->id}/clients/wireless")['data'];
-            }
-        } catch (\Exception $e) {
-            Log::info($e->getMessage());
-        }
+            // 2. Otimiza: Limpa e gera novos caches de Configuração e Rotas em um só comando
+            // Isso é equivalente a config:cache e route:cache juntos
+            Artisan::call('optimize');
 
-        $sections = [
-            'simple_table' => ['data' => json_decode(json_encode($simple_table  ?? [])),],
-            'card_data' => ['data' => json_decode(json_encode($data_hotspot  ?? [])),]
-        ];
-        //WebHelper::logdata('1',  '1',  $titlepage,  User::find(Auth::user()->id)->name . " Acessou - {$titlepage}");
-        return view('admin.page',  compact(
-            'sidebaradmin',
-            'breadcrumbs',
-            'titlepage',
-            'sections'
-        ));
+            Log::info('Sistema: Cache limpo e otimização gerada com sucesso.');
+
+            return redirect()->back()->with('status', 'Sistema limpo e otimizado!');
+        } catch (Exception $e) {
+            Log::error('Falha ao otimizar sistema: ' . $e->getMessage());
+
+            return redirect()->back()->withErrors('Erro ao processar a limpeza: ' . $e->getMessage());
+        }
+    }
+    /**
+     * Gerar Controller, Models e Migrate.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function mcrsf(Request $request)
+    {
+        // 1. Sanitização e Formatação
+        // Str::studly garante que "nome_do_projeto" vire "NomeDoProjeto", padrão do Laravel
+        //$nome = Str::studly($request->nome);
+
+        //if (empty($nome)) {
+        //    return redirect()->back()->withErrors('O nome do modelo é obrigatório.');
+        //}
+
+        //try {
+        //    // 2. Execução do comando
+        //    // O uso de arrays no Artisan::call é mais seguro contra injeção de comandos
+        //    $exitCode = Artisan::call('make:model', [
+        //        'name' => $nome,
+        //        '-m' => true, // Migration
+        //        '-c' => true, // Controller
+        //        '-r' => true, // Resource (Controller)
+        //        '-s' => true, // Seeder
+        //        '-f' => true, // Factory
+        //    ]);
+
+        //    Log::info("Arquivos para o modelo {$nome} gerados com sucesso.");
+
+        //    return redirect()->back()->with('success', "Modelo {$nome} e dependências criados!");
+        //} catch (Exception $e) {
+        //    Log::error("Erro ao gerar arquivos para {$nome}: " . $e->getMessage());
+
+        //    return redirect()->back()->withErrors('Falha ao gerar arquivos. Verifique as permissões de pasta.');
+        //}
+    }
+    /**
+     * Carregar Banco de dados
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function db()
+    {
+        //try {
+        //    // 1. Bloqueio de Segurança: Nunca rodar isso em produção acidentalmente
+        //    if (App::environment('production')) {
+        //        return redirect()->back()->withErrors('Ação não permitida em ambiente de produção!');
+        //    }
+        //
+        //    // 2. migrate:fresh substitui o db:wipe + migrate
+        //    // O parâmetro --seed já executa o DatabaseSeeder principal
+        //    Artisan::call('migrate:fresh', ['--seed' => true]);
+        //
+        //    // 3. Seeder específico (se ele já não estiver dentro do DatabaseSeeder)
+        //    Artisan::call('db:seed', ['--class' => 'CreateAdminUserSeeder']);
+        //
+        //    Log::info('Banco de dados resetado e semeado com sucesso.');
+        //
+        //    return redirect()->back()->with('success', 'Banco de dados reiniciado e Administrador criado!');
+        //} catch (Exception $e) {
+        //    Log::error('Falha ao resetar banco de dados: ' . $e->getMessage());
+        //
+        //    return redirect()->back()->withErrors('Erro ao processar banco de dados. Verifique os logs.');
+        //}
     }
 }

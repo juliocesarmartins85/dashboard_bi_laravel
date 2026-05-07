@@ -25,10 +25,9 @@ services:
         networks:
             - laravel
 
-    # db mariadb
+    # db mysql
     db:
-        image: mariadb
-        platform: linux/x86_64
+        image: mysql:8.0
         restart: unless-stopped
         environment:
             MYSQL_DATABASE: ${DB_DATABASE:-laravel}
@@ -42,16 +41,16 @@ services:
         networks:
             - laravel
 
-    # queue
-    queue:
-        image: especializati/laravel9-app
+    # PHPMyAdmin
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
         restart: unless-stopped
-        command: "php artisan queue:work"
-        volumes:
-            - ./:/var/www
-        depends_on:
-            - redis
-            - app
+        ports:
+            - "8080:80"
+        environment:
+            PMA_HOST: db
+            PMA_PORT: 3306
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-userpass}
         networks:
             - laravel
 
