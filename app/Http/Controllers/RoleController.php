@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Models\SideBar;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
 {
@@ -22,9 +19,10 @@ class RoleController extends Controller
     protected $title_breadcrumbs;
     protected $breadcrumbs;
     protected $inputs_forms;
+
     /**
      * Display a listing of the resource.
-     *s
+     *
      * @return \Illuminate\Http\Response
      */
     function __construct()
@@ -55,9 +53,9 @@ class RoleController extends Controller
                 'name' => 'name',
                 'placeholder' => 'Nome',
                 'tag' => 'input',
+                'col' => '6',
                 'value' => 'name',
             ],
-
         ];
         $this->table_data = [
             [
@@ -69,34 +67,72 @@ class RoleController extends Controller
     }
 
     /**
+     * Dados comuns a toda página administrativa desta entidade
+     * (title/route/can + sidebar), reaproveitados por todas as actions.
+     */
+    private function baseData(array $extra = []): array
+    {
+        return array_merge([
+            'title' => $this->title,
+            'titlepage' => $this->title,
+            'route' => $this->title_route,
+            'can' => $this->title_can,
+            'sidebaradmin' => SideBar::all(),
+        ], $extra);
+    }
+
+    /**
+     * Acrescenta o breadcrumb da ação atual e retorna a lista acumulada
+     * (mesmo comportamento de mutação de $this->breadcrumbs do original).
+     */
+    private function breadcrumbsFor(string $action): array
+    {
+        $this->breadcrumbs[] = [
+            'title' => "{$action} {$this->title_breadcrumbs}",
+            'url' => '#',
+        ];
+
+        return $this->breadcrumbs;
+    }
+
+    private function section(string $name, array $data = []): array
+    {
+        return [$name => ['data' => $data]];
+    }
+
+    private function redirectToIndex(string $status, string $message): RedirectResponse
+    {
+        return redirect()
+            ->route("{$this->title_route}.index")
+            ->with($status, $message);
+    }
+
+    /**
+     * IDs de permissão vindos do checkbox do form (roles[]/permission[]),
+     * convertidos para int de verdade. O spatie/laravel-permission só trata
+     * um item como ID (findById) quando é is_int(); como toda entrada de
+     * request HTTP chega como string, sem esse cast o pacote tentava achar
+     * uma permissão pelo NOME "9" e falhava.
+     */
+    private function permissionIds(Request $request): array
+    {
+        return array_map('intval', $request->input('permission', []));
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request): View
     {
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = $this->breadcrumbs;
-        $sections = ["crud.index" => ['data' => [],]];
-        $datapage = Role::where('name', '!=', 'developer')->get();
-        $title = $this->title;
-        $titlepage = $this->title;
-        $route = $this->title_route;
-        $can = $this->title_can;
-        $header_table = $this->table_data;
-        $body_table = $this->table_data;
-        return view('admin.page', compact(
-            'datapage',
-            'title',
-            'header_table',
-            'body_table',
-            'route',
-            'can',
-            'sidebaradmin',
-            'breadcrumbs',
-            'titlepage',
-            'sections'
-        ));
+        return view('admin.page', $this->baseData([
+            'datapage' => Role::where('name', '!=', 'developer')->get(),
+            'breadcrumbs' => $this->breadcrumbs,
+            'sections' => $this->section('crud.index'),
+            'header_table' => $this->table_data,
+            'body_table' => $this->table_data,
+        ]));
     }
 
     /**
@@ -106,30 +142,12 @@ class RoleController extends Controller
      */
     public function create(): View
     {
-        $this->breadcrumbs[] = [
-            'title' => 'Adicionar ' . $this->title_breadcrumbs,
-            'url' => '#',
-        ];
-        $permission = Permission::get();
-        $route = $this->title_route;
-        $can = $this->title_can;
-        $title = $this->title;
-        $form_create = $this->inputs_forms;
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = $this->breadcrumbs;
-        $sections = ["crud.create" => ['data' => [],]];
-        $titlepage = $this->title;
-        return view('admin.page', compact(
-            'route',
-            'form_create',
-            'title',
-            'can',
-            'titlepage',
-            'sidebaradmin',
-            'breadcrumbs',
-            'permission',
-            'sections'
-        ));
+        return view('admin.page', $this->baseData([
+            'breadcrumbs' => $this->breadcrumbsFor('Adicionar'),
+            'form_create' => $this->inputs_forms,
+            'sections' => $this->section('crud.create'),
+            'permission' => Permission::get(),
+        ]));
     }
 
     /**
@@ -146,11 +164,11 @@ class RoleController extends Controller
         ]);
 
         $role = Role::create(['name' => $request->input('name')]);
-        $role->syncPermissions($request->input('permission'));
+        $role->syncPermissions($this->permissionIds($request));
 
-        return redirect()->route("$this->title_route.index")
-            ->with('success', "$this->title adicionado com sucesso.");
+        return $this->redirectToIndex('success', "{$this->title} adicionado com sucesso.");
     }
+
     /**
      * Display the specified resource.
      *
@@ -159,34 +177,17 @@ class RoleController extends Controller
      */
     public function show($id): View
     {
-        $this->breadcrumbs[] = [
-            'title' => 'Detalhes ' . $this->title_breadcrumbs,
-            'url' => '#',
-        ];
-        $datapage = Role::find($id);
-        $titlepage = $this->title;
-        $rolePermissions = Permission::join("role_has_permissions", "role_has_permissions.permission_id", "=", "permissions.id")
-            ->where("role_has_permissions.role_id", $id)
-            ->get();
-        $route = $this->title_route;
-        $can = $this->title_can;
-        $title = $this->title;
-        $form_show = $this->inputs_forms;
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = $this->breadcrumbs;
-        $sections = ["crud.show" => ['data' => [],]];
-        return view('admin.page', compact(
-            'datapage',
-            'form_show',
-            'route',
-            'can',
-            'title',
-            'titlepage',
-            'sidebaradmin',
-            'breadcrumbs',
-            'rolePermissions',
-            'sections'
-        ));
+        $role = Role::find($id);
+
+        return view('admin.page', $this->baseData([
+            'datapage' => $role,
+            'breadcrumbs' => $this->breadcrumbsFor('Detalhes'),
+            'form_show' => $this->inputs_forms,
+            'sections' => $this->section('crud.show'),
+            // ?-> preserva o comportamento original (coleção vazia, sem
+            // exceção) quando $id não corresponde a nenhum role.
+            'rolePermissions' => $role?->permissions ?? collect(),
+        ]));
     }
 
     /**
@@ -197,36 +198,16 @@ class RoleController extends Controller
      */
     public function edit($id): View
     {
-        $this->breadcrumbs[] =             [
-            'title' => 'Editar ' . $this->title_breadcrumbs,
-            'url' => '#',
-        ];
-        $datapage = Role::find($id);
-        $title = $this->title;
-        $titlepage = $this->title;
-        $permission = Permission::get();
-        $rolePermissions = DB::table("role_has_permissions")->where("role_has_permissions.role_id", $id)
-            ->pluck('role_has_permissions.permission_id', 'role_has_permissions.permission_id')
-            ->all();
-        $route = $this->title_route;
-        $can = $this->title_can;
-        $form_edit = $this->inputs_forms;
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = $this->breadcrumbs;
-        $sections = ["crud.edit" => ['data' => [],]];
-        return view('admin.page', compact(
-            'datapage',
-            'form_edit',
-            'route',
-            'can',
-            'title',
-            'titlepage',
-            'sidebaradmin',
-            'breadcrumbs',
-            'permission',
-            'rolePermissions',
-            'sections'
-        ));
+        $role = Role::find($id);
+
+        return view('admin.page', $this->baseData([
+            'datapage' => $role,
+            'breadcrumbs' => $this->breadcrumbsFor('Editar'),
+            'form_edit' => $this->inputs_forms,
+            'sections' => $this->section('crud.edit'),
+            'permission' => Permission::get(),
+            'rolePermissions' => $role?->permissions->pluck('id', 'id')->all() ?? [],
+        ]));
     }
 
     /**
@@ -247,11 +228,11 @@ class RoleController extends Controller
         $role->name = $request->input('name');
         $role->save();
 
-        $role->syncPermissions($request->input('permission'));
+        $role->syncPermissions($this->permissionIds($request));
 
-        return redirect()->route("$this->title_route.index")
-            ->with('success', "$this->title atualizado com sucesso.");
+        return $this->redirectToIndex('success', "{$this->title} atualizado com sucesso.");
     }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -262,7 +243,6 @@ class RoleController extends Controller
     {
         Role::destroy($id);
 
-        return redirect()->route("$this->title_route.index")
-            ->with('success', "$this->title excluido com sucesso");
+        return $this->redirectToIndex('success', "{$this->title} excluido com sucesso");
     }
 }

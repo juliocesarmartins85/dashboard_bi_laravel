@@ -24,6 +24,8 @@ class UserController extends Controller
     protected $title_permission;
     protected $title_breadcrumbs;
     protected $breadcrumbs;
+    protected $form;
+
     /**
      * Display a listing of the resource.
      *
@@ -46,11 +48,100 @@ class UserController extends Controller
                 'url' => "/{$this->title_route}",
             ]
         ];
+        $this->form = [
+            [
+                'title' => 'nome completo',
+                'type' => 'text',
+                'name' => 'name',
+                'value' => 'name',
+                'col' => '12',
+                'placeholder' => 'nome completo',
+                'tag' => 'input',
+            ],
+            [
+                'title' => 'email',
+                'type' => 'text',
+                'name' => 'email',
+                'value' => 'email',
+                'col' => '6',
+                'placeholder' => 'email',
+                'tag' => 'input',
+            ],
+            [
+                'title' => 'Senha',
+                'type' => 'text',
+                'name' => 'password',
+                'value' => '',
+                'col' => '3',
+                'placeholder' => 'senha',
+                'tag' => 'input',
+            ],
+            [
+                'title' => 'Confirmar Senha',
+                'type' => 'text',
+                'name' => 'confirm-password',
+                'value' => 'confirm-password',
+                'col' => '3',
+                'placeholder' => 'confirmar senha',
+                'tag' => 'input',
+            ],
+        ];
         $this->middleware("permission:$this->title_permission-listar|$this->title_permission-criar|$this->title_permission-editar|$this->title_permission-deletar", ['only' => ['index', 'show']]);
         $this->middleware("permission:$this->title_permission-criar", ['only' => ['create', 'store']]);
         $this->middleware("permission:$this->title_permission-editar", ['only' => ['edit', 'update']]);
         $this->middleware("permission:$this->title_permission-deletar", ['only' => ['destroy']]);
     }
+
+    /**
+     * Dados comuns a toda página administrativa desta entidade
+     * (title/route/can + sidebar), reaproveitados por todas as actions.
+     */
+    private function baseData(array $extra = []): array
+    {
+        return array_merge([
+            'title' => $this->title,
+            'titlepage' => $this->title,
+            'route' => $this->title_route,
+            'can' => $this->title_can,
+            'sidebaradmin' => SideBar::all(),
+        ], $extra);
+    }
+
+    /**
+     * Acrescenta o breadcrumb da ação atual e retorna a lista acumulada
+     * (mesmo comportamento de mutação de $this->breadcrumbs do original).
+     */
+    private function breadcrumbsFor(string $action): array
+    {
+        $this->breadcrumbs[] = [
+            'title' => "{$action} {$this->title_breadcrumbs}",
+            'url' => '#',
+        ];
+
+        return $this->breadcrumbs;
+    }
+
+    private function section(string $name, array $data = []): array
+    {
+        return [$name => ['data' => $data]];
+    }
+
+    private function redirectToIndex(string $status, string $message): RedirectResponse
+    {
+        return redirect()
+            ->route("{$this->title_route}.index")
+            ->with($status, $message);
+    }
+
+    /**
+     * Roles disponíveis para atribuição, exceto 'developer' — usado tanto
+     * em create() ('rolesuser') quanto em edit() ('roles').
+     */
+    private function assignableRoles(): array
+    {
+        return Role::where('name', '!=', 'developer')->pluck('name', 'name')->all();
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -58,48 +149,20 @@ class UserController extends Controller
      */
     public function index(Request $request): View
     {
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = $this->breadcrumbs;
-        $sections = ["crud.index" => ['data' => [],]];
-        $datauser = User::whereNotIn('funcaosis', ['developer'])->get();
-        $route = $this->title_route;
-        $can = $this->title_can;
-        $title = $this->title;
-        $titlepage = $this->title;
-        $header_table = [
-            [
-                'title' => 'Nome',
-                'width' => '',
+        return view('admin.page', $this->baseData([
+            'datauser' => User::whereNotIn('funcaosis', ['developer'])->get(),
+            'breadcrumbs' => $this->breadcrumbs,
+            'sections' => $this->section('crud.index'),
+            'header_table' => [
+                ['title' => 'Nome', 'width' => ''],
+                ['title' => 'Email', 'width' => ''],
+                ['title' => 'Acesso', 'width' => ''],
             ],
-            [
-                'title' => 'Email',
-                'width' => '',
+            'body_table' => [
+                ['title' => 'name'],
+                ['title' => 'email'],
             ],
-            [
-                'title' => 'Acesso',
-                'width' => '',
-            ],
-        ];
-        $body_table = [
-            [
-                'title' => 'name',
-            ],
-            [
-                'title' => 'email',
-            ],
-        ];
-        return view('admin.page', compact(
-            'datauser',
-            'title',
-            'header_table',
-            'body_table',
-            'route',
-            'can',
-            'sidebaradmin',
-            'breadcrumbs',
-            'titlepage',
-            'sections'
-        ));
+        ]));
     }
 
     /**
@@ -109,58 +172,18 @@ class UserController extends Controller
      */
     public function create(): View
     {
-        $this->breadcrumbs[] = [
-            'title' => 'Adicionar ' . $this->title_breadcrumbs,
-            'url' => '#',
-        ];
-        $rolesuser = Role::where('name', '!=', 'developer')->pluck('name', 'name')->all();
-        $route = $this->title_route;
-        $can = $this->title_can;
-        $title = $this->title;
-        $titlepage = $this->title;
-        $form_create = [
-            [
-                'title' => 'Nome',
-                'type' => 'text',
-                'name' => 'name',
-                'placeholder' => 'Nome Completo',
-                'tag' => 'input',
-            ],
-            [
-                'title' => 'email',
-                'type' => 'text',
-                'name' => 'email',
-                'placeholder' => 'email',
-                'tag' => 'input',
-            ],
-            [
-                'title' => 'Senha',
-                'type' => 'text',
-                'name' => 'password',
-                'placeholder' => 'password',
-                'tag' => 'input',
-            ],
-            [
-                'title' => 'Confirmar Senha',
-                'type' => 'text',
-                'name' => 'confirm-password',
-                'placeholder' => 'confirm-password',
-                'tag' => 'input',
-            ],
-        ];
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = [];
-        $sections = ["crud.create" => ['data' => [],]];
-        return view('admin.page', compact(
-            'route',
-            'rolesuser',
-            'form_create',
-            'title',
-            'titlepage',
-            'sidebaradmin',
-            'breadcrumbs',
-            'sections'
-        ));
+        // NOTA: breadcrumbsFor() é chamado pelo side-effect de acumular em
+        // $this->breadcrumbs, mas — igual ao comportamento original — o
+        // valor efetivamente enviado à view é [] mesmo assim. Ver aviso no
+        // resumo da refatoração.
+        $this->breadcrumbsFor('Adicionar');
+
+        return view('admin.page', $this->baseData([
+            'rolesuser' => $this->assignableRoles(),
+            'breadcrumbs' => [],
+            'form_create' => $this->form,
+            'sections' => $this->section('crud.create'),
+        ]));
     }
 
     /**
@@ -185,8 +208,7 @@ class UserController extends Controller
         $user->assignRole($request->input('roles'));
         $user->update(['funcaosis' => $request->roles[0]]);
 
-        return redirect()->route('users.index')
-            ->with('success', "Registro adicionado com sucesso.");
+        return $this->redirectToIndex('success', 'Registro adicionado com sucesso.');
     }
 
     /**
@@ -197,45 +219,16 @@ class UserController extends Controller
      */
     public function show($id): View
     {
-        $this->breadcrumbs[] = [
-            'title' => 'Detalhes ' . $this->title_breadcrumbs,
-            'url' => '#',
-        ];
-        $datapage = User::find($id);
-        $route = $this->title_route;
-        $can = $this->title_can;
-        $title = $this->title;
-        $titlepage = $this->title;
-        $form_show = [
-            [
-                'title' => 'Nome',
-                'type' => 'text',
-                'name' => 'name',
-                'placeholder' => 'Nome Completo',
-                'tag' => 'input',
-            ],
-            [
-                'title' => 'email',
-                'type' => 'text',
-                'name' => 'email',
-                'placeholder' => 'email',
-                'tag' => 'input',
-            ],
-        ];
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = $this->breadcrumbs;
-        $sections = ["crud.show" => ['data' => [],]];
-        return view('admin.page', compact(
-            'datapage',
-            'form_show',
-            'route',
-            'can',
-            'title',
-            'titlepage',
-            'sidebaradmin',
-            'breadcrumbs',
-            'sections'
-        ));
+        return view('admin.page', $this->baseData([
+            'datapage' => User::find($id),
+            'breadcrumbs' => $this->breadcrumbsFor('Detalhes'),
+            // Só nome/email — nunca senha/confirmar-senha aqui: essa página
+            // é somente leitura e chegou a expor o HASH da senha na tela
+            // quando usava $this->form (que inclui os campos de senha do
+            // create/edit).
+            'form_show' => array_filter($this->form, fn($frm) => !str_contains($frm['name'], 'password')),
+            'sections' => $this->section('crud.show'),
+        ]));
     }
 
     /**
@@ -246,67 +239,16 @@ class UserController extends Controller
      */
     public function edit($id): View
     {
-        $this->breadcrumbs[] =             [
-            'title' => 'Editar ' . $this->title_breadcrumbs,
-            'url' => '#',
-        ];
         $datapage = User::find($id);
-        $route = $this->title_route;
-        $can = $this->title_can;
-        $title = $this->title;
-        $titlepage = $this->title;
-        $form_edit = [
-            [
-                'title' => 'Nome Completo',
-                'type' => 'text',
-                'name' => 'name',
-                'value' => 'name',
-                'placeholder' => 'Nome Completo',
-                'tag' => 'input',
-            ],
-            [
-                'title' => 'email',
-                'type' => 'text',
-                'name' => 'email',
-                'value' => 'email',
-                'placeholder' => 'email',
-                'tag' => 'input',
-            ],
-            [
-                'title' => 'password',
-                'type' => 'text',
-                'name' => 'password',
-                'value' => '',
-                'placeholder' => 'password',
-                'tag' => 'input',
-            ],
-            [
-                'title' => 'confirm-password',
-                'type' => 'text',
-                'name' => 'confirm-password',
-                'value' => 'confirm-password',
-                'placeholder' => 'confirm-password',
-                'tag' => 'input',
-            ],
-        ];
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = $this->breadcrumbs;
-        $sections = ["crud.edit" => ['data' => [],]];
-        $roles = Role::where('name', '!=', 'developer')->pluck('name', 'name')->all();
-        $userRole = $datapage->roles->where('name', '!=', 'developer')->pluck('name', 'name')->all();
-        return view('admin.page', compact(
-            'datapage',
-            'form_edit',
-            'route',
-            'can',
-            'title',
-            'titlepage',
-            'sidebaradmin',
-            'breadcrumbs',
-            'sections',
-            'roles',
-            'userRole'
-        ));
+
+        return view('admin.page', $this->baseData([
+            'datapage' => $datapage,
+            'breadcrumbs' => $this->breadcrumbsFor('Editar'),
+            'form_edit' => $this->form,
+            'sections' => $this->section('crud.edit'),
+            'roles' => $this->assignableRoles(),
+            'userRole' => $datapage->roles->where('name', '!=', 'developer')->pluck('name', 'name')->all(),
+        ]));
     }
 
     /**
@@ -340,8 +282,7 @@ class UserController extends Controller
 
         $user->update(['funcaosis' => $request->roles[0]]);
 
-        return redirect()->route('users.index')
-            ->with('warning', "Registro atualizado com sucesso.");
+        return $this->redirectToIndex('warning', 'Registro atualizado com sucesso.');
     }
 
     /**
@@ -353,57 +294,64 @@ class UserController extends Controller
     public function destroy($id): RedirectResponse
     {
         User::find($id)->delete();
-        return redirect()->route('users.index')
-            ->with('warning', "Registro excluido com sucesso");
+
+        return $this->redirectToIndex('warning', 'Registro excluido com sucesso');
     }
+
     /**
-     *
+     * Página "Meu perfil" do usuário autenticado.
      */
-    public function config_user()
+    public function config_user(): View
     {
-        $title = 'perfil';
-        $titlepage = ucfirst($title);
-        $breadcrumbs = [
-            [
-                'title' => "Home",
-                'url' => route("home")
-            ],
-        ];
-        WebHelper::logdata('1',  '1',  $titlepage,  User::find(Auth::user()->id)->name . " Acessou - {$titlepage}");
+        $user = User::find(Auth::user()->id);
+        $titlepage = ucfirst('perfil');
+
+        WebHelper::logdata('1', '1', $titlepage, "{$user->name} Acessou - {$titlepage}");
+
         return view('admin.page', [
             'sidebaradmin' => SideBar::all(),
-            'breadcrumbs' => $breadcrumbs,
+            'breadcrumbs' => [
+                ['title' => 'Home', 'url' => route('home')],
+            ],
             'titlepage' => 'Usuário',
             'sections' => [
                 'myProfile' => [
                     'col' => '12',
-                    'data' => ['user' => User::find(Auth::user()->id)],
+                    'data' => ['user' => $user],
                 ],
-            ]
+            ],
         ]);
     }
+
     /**
-     * Update the specified resource in storage.
+     * Atualiza o perfil do usuário autenticado.
+     *
+     * NOTA: preserva o comportamento original — o {id} da rota
+     * (/update_user/{id}) não é usado; a atualização sempre é feita em
+     * cima de Auth::user()->id. Ver aviso no resumo.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update_user(Request $request, $id)
+    public function update_user(Request $request, $id): RedirectResponse
     {
         $item = User::find(Auth::user()->id);
-        $item->name = $request->fullName;
-        $item->email = $request->email;
-        $item->funcao = $request->job;
-        $item->desc = $request->about;
-        $item->endereco = $request->address;
-        $item->facebook = $request->facebook;
-        $item->twitter = $request->twitter;
-        $item->instagram = $request->instagram;
-        $item->linkedin = $request->linkedin;
-        $item->organizacao = $request->company;
-        $item->telefone = $request->phone;
-        $item->save();
+
+        $item->fill([
+            'name' => $request->fullName,
+            'email' => $request->email,
+            'funcao' => $request->job,
+            'desc' => $request->about,
+            'endereco' => $request->address,
+            'facebook' => $request->facebook,
+            'twitter' => $request->twitter,
+            'instagram' => $request->instagram,
+            'linkedin' => $request->linkedin,
+            'organizacao' => $request->company,
+            'telefone' => $request->phone,
+        ])->save();
+
         return back()->with('success', 'Perfil atualizado com sucesso!');
     }
 }

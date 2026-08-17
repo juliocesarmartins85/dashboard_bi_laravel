@@ -64,66 +64,6 @@ class SideBarSeeder extends Seeder
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
-                        [
-                'nome' => 'Motoristas',
-                'icon' => 'bi bi-person-badge-fill',
-                'url' => '/drivers',
-                'nvl' => 1,
-                'ativo' => true,
-                'ancent' => '',
-                'descent' => '',
-                'drop' => false,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
-                'nome' => 'Veículos',
-                'icon' => 'bi bi-bus-front-fill',
-                'url' => '/vehicles',
-                'nvl' => 1,
-                'ativo' => true,
-                'ancent' => '',
-                'descent' => '',
-                'drop' => false,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
-                'nome' => 'Linhas de Ônibus',
-                'icon' => 'bi bi-signpost-split-fill',
-                'url' => '/routes',
-                'nvl' => 1,
-                'ativo' => true,
-                'ancent' => '',
-                'descent' => '',
-                'drop' => false,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
-                'nome' => 'Pontos de Parada',
-                'icon' => 'bi bi-geo-alt-fill',
-                'url' => '/stops',
-                'nvl' => 1,
-                'ativo' => true,
-                'ancent' => '',
-                'descent' => '',
-                'drop' => false,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
-                'nome' => 'Ruas',
-                'icon' => 'bi bi-map-fill',
-                'url' => '/streets',
-                'nvl' => 1,
-                'ativo' => true,
-                'ancent' => '',
-                'descent' => '',
-                'drop' => false,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
             [
                 'nome' => 'Dados Sistemas',
                 'icon' => 'bi bi-file',

@@ -17,6 +17,7 @@ class ProfileUserController extends Controller
     protected $title_permission;
     protected $title_breadcrumbs;
     protected $breadcrumbs;
+
     /**
      * Display a listing of the resource.
      *
@@ -44,48 +45,73 @@ class ProfileUserController extends Controller
         $this->middleware("permission:$this->title_permission-editar", ['only' => ['edit', 'update']]);
         $this->middleware("permission:$this->title_permission-deletar", ['only' => ['destroy']]);
         $this->inputs_forms = [
-            [
-                'title' => 'Mac address',
-                'type' => 'text',
-                'name' => 'mac_address',
-                'placeholder' => 'Mac address',
-                'tag' => 'input',
-                'value' => 'mac_address',
-            ],
-            [
-                'title' => 'Nome',
-                'type' => 'text',
-                'name' => 'name',
-                'placeholder' => 'Nome',
-                'tag' => 'input',
-                'value' => 'name',
-            ],
-            [
-                'title' => 'Telefone',
-                'type' => 'text',
-                'name' => 'telefone',
-                'placeholder' => 'Telefone',
-                'tag' => 'input',
-                'value' => 'telefone',
-            ],
-            [
-                'title' => 'Bairro',
-                'type' => 'text',
-                'name' => 'bairro',
-                'placeholder' => 'Bairro',
-                'tag' => 'input',
-                'value' => 'bairro',
-            ],
-            [
-                'title' => 'Cidade',
-                'type' => 'text',
-                'name' => 'cidade',
-                'placeholder' => 'Cidade',
-                'tag' => 'input',
-                'value' => 'cidade',
-            ],
+            $this->textField('Nome', 'name', '9'),
+            $this->textField('Telefone', 'telefone', '3'),
+            $this->textField('Bairro', 'bairro', '4'),
+            $this->textField('Cidade', 'cidade', '4'),
+            $this->textField('Mac address', 'mac_address', '4'),
         ];
     }
+
+    /**
+     * Campo de texto padrão do form desta entidade: todos os 5 campos
+     * seguem o mesmo formato (input de texto, meia largura, placeholder
+     * igual ao título), só variando label/nome do atributo.
+     */
+    private function textField(string $label, string $name, string $col): array
+    {
+        return [
+            'title' => $label,
+            'type' => 'text',
+            'name' => $name,
+            'placeholder' => $label,
+            'tag' => 'input',
+            'value' => $name,
+            'col' => $col,
+        ];
+    }
+
+    /**
+     * Dados comuns a toda página administrativa desta entidade
+     * (title/route/can + sidebar), reaproveitados por todas as actions.
+     */
+    private function baseData(array $extra = []): array
+    {
+        return array_merge([
+            'title' => $this->title,
+            'titlepage' => $this->title,
+            'route' => $this->title_route,
+            'can' => $this->title_can,
+            'sidebaradmin' => SideBar::all(),
+        ], $extra);
+    }
+
+    /**
+     * Acrescenta o breadcrumb da ação atual e retorna a lista acumulada
+     * (mesmo comportamento de mutação de $this->breadcrumbs do original).
+     */
+    private function breadcrumbsFor(string $action): array
+    {
+        $this->breadcrumbs[] = [
+            'title' => "{$action} {$this->title_breadcrumbs}",
+            'url' => '#',
+        ];
+
+        return $this->breadcrumbs;
+    }
+
+    private function section(string $name, array $data = []): array
+    {
+        return [$name => ['data' => $data]];
+    }
+
+    private function redirectToIndex(string $status, string $message): RedirectResponse
+    {
+        return redirect()
+            ->route("{$this->title_route}.index")
+            ->with($status, $message);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -93,76 +119,25 @@ class ProfileUserController extends Controller
      */
     public function index(): View
     {
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = $this->breadcrumbs;
-        $sections = ["crud.index" => ['data' => [],]];
-        $title = $this->title;
-        $titlepage = $this->title;
-        $datapage = ProfileUser::all();
-        $route = $this->title_route;
-        $can = $this->title_can;
-        $title = $this->title;
-        $header_table = [
-            [
-                'title' => 'Mac Address',
-                'width' => '',
+        return view('admin.page', $this->baseData([
+            'datapage' => ProfileUser::all(),
+            'breadcrumbs' => $this->breadcrumbs,
+            'sections' => $this->section('crud.index'),
+            'header_table' => [
+                ['title' => 'Mac Address', 'width' => ''],
+                ['title' => 'Nome', 'width' => ''],
+                ['title' => 'Telefone', 'width' => ''],
+                ['title' => 'Bairro', 'width' => ''],
+                ['title' => 'Cidade', 'width' => ''],
             ],
-            [
-                'title' => 'Nome',
-                'width' => '',
+            'body_table' => [
+                ['title' => 'mac_address', 'value' => 'mac_address', 'width' => ''],
+                ['title' => 'name', 'value' => 'name', 'width' => ''],
+                ['title' => 'telefone', 'value' => 'telefone', 'width' => ''],
+                ['title' => 'bairro', 'value' => 'bairro', 'width' => ''],
+                ['title' => 'cidade', 'value' => 'cidade', 'width' => ''],
             ],
-            [
-                'title' => 'Telefone',
-                'width' => '',
-            ],
-            [
-                'title' => 'Bairro',
-                'width' => '',
-            ],
-            [
-                'title' => 'Cidade',
-                'width' => '',
-            ],
-        ];
-        $body_table = [
-            [
-                'title' => 'mac_address',
-                'value' => 'mac_address',
-                'width' => '',
-            ],
-            [
-                'title' => 'name',
-                'value' => 'name',
-                'width' => '',
-            ],
-            [
-                'title' => 'telefone',
-                'value' => 'telefone',
-                'width' => '',
-            ],
-            [
-                'title' => 'bairro',
-                'value' => 'bairro',
-                'width' => '',
-            ],
-            [
-                'title' => 'cidade',
-                'value' => 'cidade',
-                'width' => '',
-            ],
-        ];
-        return view('admin.page', compact(
-            'datapage',
-            'title',
-            'header_table',
-            'body_table',
-            'route',
-            'can',
-            'sidebaradmin',
-            'breadcrumbs',
-            'titlepage',
-            'sections'
-        ));
+        ]));
     }
 
     /**
@@ -172,27 +147,11 @@ class ProfileUserController extends Controller
      */
     public function create(): View
     {
-        $this->breadcrumbs[] = [
-            'title' => 'Adicionar ' . $this->title_breadcrumbs,
-            'url' => '#',
-        ];
-        $route = $this->title_route;
-        $can = $this->title_can;
-        $title = $this->title;
-        $titlepage = $this->title;
-        $form_create = $this->inputs_forms;
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = $this->breadcrumbs;
-        $sections = ["crud.create" => ['data' => [],]];
-        return view('admin.page', compact(
-            'route',
-            'form_create',
-            'title',
-            'titlepage',
-            'sidebaradmin',
-            'breadcrumbs',
-            'sections'
-        ));
+        return view('admin.page', $this->baseData([
+            'breadcrumbs' => $this->breadcrumbsFor('Adicionar'),
+            'form_create' => $this->inputs_forms,
+            'sections' => $this->section('crud.create'),
+        ]));
     }
 
     /**
@@ -210,8 +169,7 @@ class ProfileUserController extends Controller
 
         ProfileUser::create($request->all());
 
-        return redirect()->route("$this->title_route.index")
-            ->with('success', "Registro adicionado com sucesso.");
+        return $this->redirectToIndex('success', 'Registro adicionado com sucesso.');
     }
 
     /**
@@ -222,30 +180,12 @@ class ProfileUserController extends Controller
      */
     public function show(ProfileUser $profileuser): View
     {
-        $this->breadcrumbs[] = [
-            'title' => 'Detalhes ' . $this->title_breadcrumbs,
-            'url' => '#',
-        ];
-        $datapage = $profileuser;
-        $route = $this->title_route;
-        $can = $this->title_can;
-        $title = $this->title;
-        $titlepage = $this->title;
-        $form_show = $this->inputs_forms;
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = $this->breadcrumbs;
-        $sections = ["crud.show" => ['data' => [],]];
-        return view('admin.page', compact(
-            'datapage',
-            'form_show',
-            'route',
-            'can',
-            'title',
-            'titlepage',
-            'sidebaradmin',
-            'breadcrumbs',
-            'sections'
-        ));
+        return view('admin.page', $this->baseData([
+            'datapage' => $profileuser,
+            'breadcrumbs' => $this->breadcrumbsFor('Detalhes'),
+            'form_show' => $this->inputs_forms,
+            'sections' => $this->section('crud.show'),
+        ]));
     }
 
     /**
@@ -256,30 +196,18 @@ class ProfileUserController extends Controller
      */
     public function edit(ProfileUser $profileuser): View
     {
-        $this->breadcrumbs[] =             [
-            'title' => 'Editar ' . $this->title_breadcrumbs,
-            'url' => '#',
-        ];
-        $datapage = $profileuser;
-        $route = $this->title_route;
-        $can = $this->title_can;
-        $title = $this->title;
-        $titlepage = $this->title;
-        $form_edit = $this->inputs_forms;
-        $sidebaradmin = SideBar::all();
-        $breadcrumbs = [];
-        $sections = ["crud.edit" => ['data' => [],]];
-        return view('admin.page', compact(
-            'datapage',
-            'form_edit',
-            'route',
-            'can',
-            'title',
-            'titlepage',
-            'sidebaradmin',
-            'breadcrumbs',
-            'sections'
-        ));
+        // NOTA: o breadcrumb é intencionalmente mantido como [] aqui, igual
+        // ao comportamento original — breadcrumbsFor() é chamado (mutando
+        // $this->breadcrumbs, mesmo side-effect de antes), mas o valor
+        // efetivamente enviado à view continua vazio. Ver aviso no resumo.
+        $this->breadcrumbsFor('Editar');
+
+        return view('admin.page', $this->baseData([
+            'datapage' => $profileuser,
+            'breadcrumbs' => [],
+            'form_edit' => $this->inputs_forms,
+            'sections' => $this->section('crud.edit'),
+        ]));
     }
 
     /**
@@ -298,8 +226,7 @@ class ProfileUserController extends Controller
 
         $profileuser->update($request->all());
 
-        return redirect()->route("$this->title_route.index")
-            ->with('warning', "Registro atualizado com sucesso.");
+        return $this->redirectToIndex('warning', 'Registro atualizado com sucesso.');
     }
 
     /**
@@ -312,7 +239,6 @@ class ProfileUserController extends Controller
     {
         $profileuser->delete();
 
-        return redirect()->route("$this->title_route.index")
-            ->with('warning', "Registro excluido com sucesso");
+        return $this->redirectToIndex('warning', 'Registro excluido com sucesso');
     }
 }

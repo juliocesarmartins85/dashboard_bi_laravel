@@ -21,6 +21,7 @@ class ProductController extends Controller
             'type' => 'text',
             'name' => 'name',
             'value' => 'name',
+            'col' => '6',
             'placeholder' => 'Name',
             'tag' => 'input',
         ],
@@ -29,6 +30,7 @@ class ProductController extends Controller
             'type' => 'text',
             'name' => 'detail',
             'value' => 'detail',
+            'col' => '6',
             'placeholder' => 'Detail',
             'tag' => 'textarea',
         ],
@@ -91,9 +93,33 @@ class ProductController extends Controller
 
     private function normalizeHeaders(array $headers): array
     {
-        return array_map(function ($item) {
-            return array_merge(['width' => ''], $item);
-        }, $headers);
+        return array_map(fn(array $item) => array_merge(['width' => ''], $item), $headers);
+    }
+
+    /**
+     * Monta a view de create/show/edit, que só variam pela ação do
+     * breadcrumb, pela section do CRUD, pela chave do form e (opcionalmente)
+     * pelo registro sendo exibido/editado.
+     */
+    private function formView(string $action, string $sectionKey, string $formKey, ?Product $product = null): View
+    {
+        return view('admin.page', $this->baseData(array_filter([
+            'datapage' => $product,
+            'breadcrumbs' => $this->breadcrumbs($action),
+            $formKey => $this->formFields,
+            'sections' => $this->section($sectionKey),
+        ])));
+    }
+
+    /**
+     * Redireciona para o index com a mensagem flash de status, usada por
+     * store/update/destroy.
+     */
+    private function redirectToIndex(string $status, string $message): RedirectResponse
+    {
+        return redirect()
+            ->route("{$this->route}.index")
+            ->with($status, $message);
     }
 
     public function index(): View
@@ -115,57 +141,37 @@ class ProductController extends Controller
 
     public function create(): View
     {
-        return view('admin.page', $this->baseData([
-            'breadcrumbs' => $this->breadcrumbs('Adicionar'),
-            'form_create' => $this->formFields,
-            'sections' => $this->section('crud.create'),
-        ]));
+        return $this->formView('Adicionar', 'crud.create', 'form_create');
     }
 
     public function store(Request $request): RedirectResponse
     {
         Product::create($this->validateData($request));
 
-        return redirect()
-            ->route("{$this->route}.index")
-            ->with('success', 'Registro adicionado com sucesso.');
+        return $this->redirectToIndex('success', 'Registro adicionado com sucesso.');
     }
 
     public function show(Product $product): View
     {
-        return view('admin.page', $this->baseData([
-            'datapage' => $product,
-            'breadcrumbs' => $this->breadcrumbs('Detalhes'),
-            'form_show' => $this->formFields,
-            'sections' => $this->section('crud.show'),
-        ]));
+        return $this->formView('Detalhes', 'crud.show', 'form_show', $product);
     }
 
     public function edit(Product $product): View
     {
-        return view('admin.page', $this->baseData([
-            'datapage' => $product,
-            'breadcrumbs' => $this->breadcrumbs('Editar'),
-            'form_edit' => $this->formFields,
-            'sections' => $this->section('crud.edit'),
-        ]));
+        return $this->formView('Editar', 'crud.edit', 'form_edit', $product);
     }
 
     public function update(Request $request, Product $product): RedirectResponse
     {
         $product->update($this->validateData($request));
 
-        return redirect()
-            ->route("{$this->route}.index")
-            ->with('warning', 'Registro atualizado com sucesso.');
+        return $this->redirectToIndex('warning', 'Registro atualizado com sucesso.');
     }
 
     public function destroy(Product $product): RedirectResponse
     {
         $product->delete();
 
-        return redirect()
-            ->route("{$this->route}.index")
-            ->with('error', 'Registro excluído com sucesso.');
+        return $this->redirectToIndex('error', 'Registro excluído com sucesso.');
     }
 }

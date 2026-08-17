@@ -44,6 +44,7 @@ $(document).ready(function () {
 
         // --- Configuração de Colunas (Opcional mas recomendado) ---
         columnDefs: [
+            { targets: 0, orderable: false, searchable: false }, // Coluna '#' é só um contador de exibição (Blade), não reflete a ordenação/paginação do DataTables
             { targets: -1, orderable: false, searchable: false }, // Desativa ordenação na coluna 'Ações'
             { className: "dt-center", targets: "_all" } // Centraliza todas as colunas
         ]

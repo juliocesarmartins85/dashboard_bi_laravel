@@ -14,7 +14,6 @@ class Site extends Model
         'name',
         'author',
         'description',
-        'keywords',
         'endereco',
         'telefone',
         'locale',
@@ -26,6 +25,8 @@ class Site extends Model
         'email',
         'areacliente',
         'googlesiteverification',
+        'telegram_bot',
+        'telegram_group',
         'googlemaps',
         'keywords',
     ];

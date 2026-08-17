@@ -6,11 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Route;
-use App\Models\Stop;
 use App\Models\User;
-use App\Models\Vehicle;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -161,109 +157,5 @@ class ApiController extends Controller
             'status' => 'success',
             'message' => 'Sessão encerrada com sucesso'
         ]);
-    }
-    /**
-     * BUSCA POR LINHA ATRAVÉS DO NOME DA RUA
-     * O usuário digita "Rua Direita" e o app retorna as linhas que passam nela.
-     */
-    public function searchByStreet(Request $request): JsonResponse
-    {
-        $request->validate(['query' => 'required|string|min:3']);
-        $searchTerm = $request->query('query');
-
-        // Busca ruas que coincidem com o termo e traz suas rotas vinculadas
-        $routes = Route::whereHas('streets', function ($query) use ($searchTerm) {
-            $query->where('name', 'like', "%{$searchTerm}%");
-        })->get();
-
-        return response()->json([
-            'success' => true,
-            'count' => $routes->count(),
-            'data' => $routes
-        ]);
-    }
-
-    /**
-     * LOCALIZAÇÃO DOS ÔNIBUS EM TEMPO REAL
-     * Retorna as coordenadas de todos os veículos ativos de uma linha específica.
-     */
-    public function getVehiclesLocation($routeId): JsonResponse
-    {
-        // Aqui buscamos os veículos vinculados às viagens (trips) ativas dessa rota
-        $vehicles = Vehicle::whereHas('trips', function ($query) use ($routeId) {
-            $query->where('route_id', $routeId);
-        })->select('id', 'plate', 'model', 'current_lat', 'current_lng', 'last_update')
-            ->get();
-
-        return response()->json([
-            'success' => true,
-            'line_id' => $routeId,
-            'vehicles' => $vehicles
-        ]);
-    }
-
-    /**
-     * BUSCA POR LINHA (NÚMERO OU NOME)
-     * O usuário digita "101" ou "Hospital" e a API filtra os resultados.
-     */
-    public function searchByRoute(Request $request): JsonResponse
-    {
-        $request->validate(['query' => 'required|string|min:2']);
-        $searchTerm = $request->query('query');
-
-        $routes = Route::where('short_name', 'like', "%{$searchTerm}%") // Ex: "101"
-            ->orWhere('long_name', 'like', "%{$searchTerm}%") // Ex: "Bairro Novo"
-            ->get();
-
-        return response()->json([
-            'success' => true,
-            'count' => $routes->count(),
-            'data' => $routes
-        ]);
-    }
-
-    /**
-     * Busca um veículo específico pelo ID.
-     *
-     * @param int $id
-     * @return JsonResponse
-     */
-    public function vehicleId(int $id): JsonResponse
-    {
-
-        try {
-            $vehicle = Vehicle::findOrFail($id);
-
-            // Se o dado vier como string do banco, transformamos em array/objeto aqui
-            if (is_string($vehicle->dataMoovsec)) {
-                $vehicle->dataMoovsec = json_decode($vehicle->dataMoovsec);
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => $vehicle
-            ], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Veículo não encontrado.'
-            ], 404);
-        }
-    }
-    /**
-     * Retorna todos os registros de paradas (stops).
-     *
-     * @return JsonResponse
-     */
-    public function stopsAll(): JsonResponse
-    {
-        // Busca todas as paradas do banco de dados
-        $stops = Stop::all();
-
-        return response()->json([
-            'success' => true,
-            'count' => $stops->count(),
-            'data' => $stops
-        ], 200);
     }
 }
