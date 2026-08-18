@@ -10,19 +10,14 @@ use Illuminate\Http\RedirectResponse;
 
 class ProfileUserController extends Controller
 {
-    protected $title;
-    protected $title_can;
-    protected $title_route;
-    protected $inputs_forms;
-    protected $title_permission;
-    protected $title_breadcrumbs;
-    protected $breadcrumbs;
+    protected string $title;
+    protected string $title_can;
+    protected string $title_route;
+    protected array $inputs_forms;
+    protected string $title_permission;
+    protected string $title_breadcrumbs;
+    protected array $breadcrumbs;
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     function __construct()
     {
         $this->title = 'Usuário';
@@ -115,7 +110,7 @@ class ProfileUserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index(): View
     {
@@ -143,7 +138,7 @@ class ProfileUserController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create(): View
     {
@@ -158,7 +153,7 @@ class ProfileUserController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request): RedirectResponse
     {
@@ -176,7 +171,7 @@ class ProfileUserController extends Controller
      * Display the specified resource.
      *
      * @param  \App\ProfileUser  $profileuser
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function show(ProfileUser $profileuser): View
     {
@@ -192,7 +187,7 @@ class ProfileUserController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  \App\ProfileUser  $profileuser
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function edit(ProfileUser $profileuser): View
     {
@@ -215,7 +210,7 @@ class ProfileUserController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\ProfileUser  $profileuser
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, ProfileUser $profileuser): RedirectResponse
     {
@@ -233,7 +228,7 @@ class ProfileUserController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \App\ProfileUser  $profileuser
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(ProfileUser $profileuser): RedirectResponse
     {

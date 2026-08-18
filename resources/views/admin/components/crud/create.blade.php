@@ -137,13 +137,26 @@
                 @isset($permission)
                     <div class="col-12 mt-4">
                         <label class="form-label fw-semibold d-block border-bottom pb-2">Permissões</label>
-                        <div class="d-flex flex-wrap gap-3 pt-2">
-                            @foreach ($permission as $value)
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" name="permission[]" value="{{ $value->id }}"
-                                        type="checkbox" id="permission{{ $value->id }}">
-                                    <label class="form-check-label"
-                                        for="permission{{ $value->id }}">{{ App\Helpers\WebHelper::rename_role($value->name) }}</label>
+                        <div class="row g-3 pt-2">
+                            @foreach ($permission->groupBy(fn($item) => Str::before($item->name, '-')) as $module => $modulePermissions)
+                                <div class="col-12 col-sm-6 col-lg-4">
+                                    <div class="border rounded p-3 h-100">
+                                        <p class="fw-semibold text-uppercase small text-muted mb-2">
+                                            {{ App\Helpers\WebHelper::rename_role($module) }}
+                                        </p>
+                                        <div class="d-flex flex-wrap gap-3">
+                                            @foreach ($modulePermissions as $value)
+                                                <div class="form-check form-switch mb-0">
+                                                    <input class="form-check-input" name="permission[]"
+                                                        value="{{ $value->id }}" type="checkbox"
+                                                        id="permission{{ $value->id }}">
+                                                    <label class="form-check-label" for="permission{{ $value->id }}">
+                                                        {{ App\Helpers\WebHelper::rename_role(Str::after($value->name, '-')) }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </div>
                             @endforeach
                         </div>

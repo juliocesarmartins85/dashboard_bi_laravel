@@ -10,19 +10,14 @@ use Illuminate\Http\RedirectResponse;
 
 class SiteController extends Controller
 {
-    protected $title;
-    protected $title_can;
-    protected $title_route;
-    protected $inputs_forms;
-    protected $title_permission;
-    protected $title_breadcrumbs;
-    protected $breadcrumbs;
+    protected string $title;
+    protected string $title_can;
+    protected string $title_route;
+    protected array $inputs_forms;
+    protected string $title_permission;
+    protected string $title_breadcrumbs;
+    protected array $breadcrumbs;
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     function __construct()
     {
         $this->title = 'Site';
@@ -143,7 +138,7 @@ class SiteController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index(Request $request): View
     {
@@ -163,7 +158,7 @@ class SiteController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create(): View
     {
@@ -178,7 +173,7 @@ class SiteController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request): RedirectResponse
     {
@@ -199,7 +194,7 @@ class SiteController extends Controller
      * Display the specified resource.
      *
      * @param  \App\Site  $site
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function show(Site $site): View
     {
@@ -215,7 +210,7 @@ class SiteController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  \App\Site  $site
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function edit(Site $site): View
     {
@@ -232,7 +227,7 @@ class SiteController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Site  $site
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Site $site): RedirectResponse
     {
@@ -261,7 +256,7 @@ class SiteController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \App\Site  $site
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Site $site): RedirectResponse
     {

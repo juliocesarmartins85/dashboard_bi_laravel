@@ -11,20 +11,15 @@ use Illuminate\Http\RedirectResponse;
 
 class RoleController extends Controller
 {
-    protected $title;
-    protected $title_can;
-    protected $title_route;
-    protected $table_data;
-    protected $title_permission;
-    protected $title_breadcrumbs;
-    protected $breadcrumbs;
-    protected $inputs_forms;
+    protected string $title;
+    protected string $title_can;
+    protected string $title_route;
+    protected array $table_data;
+    protected string $title_permission;
+    protected string $title_breadcrumbs;
+    protected array $breadcrumbs;
+    protected array $inputs_forms;
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     function __construct()
     {
         $this->title = 'Acesso';
@@ -122,7 +117,7 @@ class RoleController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index(Request $request): View
     {
@@ -138,7 +133,7 @@ class RoleController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create(): View
     {
@@ -154,7 +149,7 @@ class RoleController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request): RedirectResponse
     {
@@ -173,7 +168,7 @@ class RoleController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function show($id): View
     {
@@ -194,7 +189,7 @@ class RoleController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function edit($id): View
     {
@@ -215,7 +210,7 @@ class RoleController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, $id): RedirectResponse
     {
@@ -237,7 +232,7 @@ class RoleController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($id): RedirectResponse
     {
